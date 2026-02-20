@@ -1,12 +1,12 @@
 # claude-obsidian-assistant
 
-A starter Obsidian vault wired for Claude Code. Fork it, open it, and let Claude manage your notes. (or just link the github to claude and it'll help you figure things out!)
+A starter Obsidian vault wired for Claude Code. Fork it, open it, and let Claude manage your notes. (or just link this github to claude and it'll probably figure things out!)
 
-The repository is simple, give Claude and yourself a structured place to write, and tell it what you want. The vault comes with a Johnny Decimal folder system, a `/obsidian` skill for syncing projects, and some themes to make it more fun. Everything else is just you explaining your preferences to Claude and letting it build from there.
+The repository is simple, give Claude a structured place to write, and tell it what you want. The vault comes with a Johnny Decimal folder system, a `/obsidian` skill for syncing projects, and some themes to make it not ugly. Everything else is just you explaining your preferences to Claude and letting it build from there.
 
 ## Get Started
 
-If you don't have Obsidian yet, grab it at [obsidian.md](https://obsidian.md/), it's free for personal use.
+If you don't have Obsidian yet, grab it at [obsidian.md](https://obsidian.md/) — it's free for personal use.
 
 1. Fork & clone this repo
 2. Open the folder as a vault in Obsidian
@@ -25,7 +25,15 @@ This is the main thing. Run `/obsidian` from any project directory and Claude wi
 
 Project files get auto-numbered (`11.01`, `11.02`, etc.) and follow a consistent format with stack tables, architecture notes, and dated dev logs. Architecture canvases are color-coded Obsidian canvas files with nodes grouped by layer.
 
-The skill file is `claude-code/obsidian-sync.md` - make sure to read through it to see exactly what each phase does **AND PLEASE MAKE ADJUSTMENTS TO FIT YOUR OWN NEEDS/WANTS**. The architecture canvas JSON format is documented in `claude-code/canvas-reference.md`. (This may not be needed but it can help Claude understand general canvas file structures quicker.)
+The skill file is `claude-code/obsidian-sync.md` — read through it to see exactly what each phase does **AND PLEASE MAKE ADJUSTMENTS TO FIT YOUR OWN NEEDS/WANTS**. The canvas JSON format is documented in `claude-code/canvas-reference.md`. (This may not be needed but can help Claude understand canvas file structures quicker)
+
+### Architecture Canvases
+
+One of the skill's options generates a visual architecture diagram of your project as an Obsidian canvas file. Claude reads your codebase — entry points, routes, services, models, external dependencies — and maps them into a layered, color-coded diagram with connection arrows showing data flow.
+
+Each canvas groups nodes by layer (entry, API, services, data, external) so you can see at a glance how your project fits together. The diagrams are native Obsidian `.canvas` files, so you can rearrange, annotate, and extend them directly in the app.
+
+![Architecture Canvas](screenshots/architecture-canvas.png)
 
 ## Structure
 
@@ -40,7 +48,7 @@ The skill file is `claude-code/obsidian-sync.md` - make sure to read through it 
 50-59 Creative    — Drawings, media, experiments
 ```
 
-Each theme is fully self-contained with its own sidebar styling. Want to add a `60-69` area? Add the folder, add a CSS rule, **or just ask Claude to do it**. Any of these can be changed, rearranged or deleted - make a framework that works for you.
+Each theme is fully self-contained with its own sidebar styling. Want to add a `60-69` area? Add the folder, add a CSS rule, **or just ask Claude to do it**.
 
 ## Themes
 
@@ -54,6 +62,7 @@ Each theme is fully self-contained with its own sidebar styling. Want to add a `
 | `runescape.css` | inspired by the best game ever made |
 | `coquette.css` | Pastel pink light theme with Sailor Moon folder icons. |
 
+Some themes include their own icons and colors, so turn off `base-theme.css` when using one.
 If you're interested in making your own templates, explore https://www.rw-designer.com/icon-library for some inspiration! : )
 
 ![Base Theme](screenshots/base-theme.png)
@@ -64,13 +73,13 @@ If you're interested in making your own templates, explore https://www.rw-design
 
 ## Making It Yours
 
-This is a starting point, everything is meant to be changed. Claude Code works directly with Obsidian's file structure (no CLI or plugin needed), so the best way to customize is to just tell Claude what you want. *"Change the accent color to blue."* *"I want my dev logs to include time spent."* It can read and modify every file in the vault.
+This is a starting point — everything is meant to be changed. Claude Code works directly with Obsidian's file structure (no CLI or plugin needed), so the best way to customize is to just tell Claude what you want. *"Change the accent color to blue."* *"I want my dev logs to include time spent."* It can read and modify every file in the vault.
 
 Here are some directions you can take it:
 
 - **Session Memory** — Have Claude read the vault entry for your current project before starting work so it already knows the stack, recent bugs, and past decisions. After the session it updates the entry. Each session builds on the last.
 - **Auto-Documentation** — Use [Claude Code hooks](https://docs.anthropic.com/en/docs/claude-code/hooks) to trigger vault updates after commits or at session end. Dev logs write themselves.
-- **GitHub Integration** — Pull open issues, PR status, and CI health into vault entries using the GitHub API or MCP tools.
+- **GitHub Integration** — Pull open issues, PR status, and CI health into vault entries using the GitHub MCP tools.
 - **Cross-Project Queries** — Build a `/vault-query` skill that answers questions across all your projects: *"Which project uses Redis?"*, *"What auth pattern did I use in the last app?"*
 - **Decision Logs** — Record architectural decisions as they happen — what was considered, what was chosen, and why.
-- **Custom Themes** — Every CSS snippet theme in this vault was built with the help of Claude. Want a Dracula theme? A theme that matches your company brand? Just ask.
+- **Custom Themes** — Every theme in this vault was built by Claude from a one-line prompt. Want a Dracula theme? A theme that matches your company brand? Just ask.
