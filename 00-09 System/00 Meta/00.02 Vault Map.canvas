@@ -1,0 +1,19 @@
+{
+	"nodes":[
+		{"id":"center","type":"text","text":"# Vault","x":0,"y":0,"width":200,"height":80,"color":"0"},
+		{"id":"system","type":"text","text":"## 00-09 System\nMeta, templates, vault config","x":-500,"y":-250,"width":280,"height":100,"color":"0"},
+		{"id":"projects","type":"text","text":"## 10-19 Projects\nActive builds, archive, skills","x":300,"y":-250,"width":280,"height":100,"color":"2"},
+		{"id":"writing","type":"text","text":"## 20-29 Writing\nEssays, notes, daily journal","x":-500,"y":100,"width":280,"height":100,"color":"3"},
+		{"id":"knowledge","type":"text","text":"## 30-39 Knowledge\nResources, reading list","x":300,"y":100,"width":280,"height":100,"color":"5"},
+		{"id":"tracking","type":"text","text":"## 40-49 Tracking\nFinance, routines, to-dos","x":-500,"y":350,"width":280,"height":100,"color":"4"},
+		{"id":"creative","type":"text","text":"## 50-59 Creative\nDrawings, media, experiments","x":300,"y":350,"width":280,"height":100,"color":"6"}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"center","fromSide":"left","toNode":"system","toSide":"right"},
+		{"id":"e2","fromNode":"center","fromSide":"right","toNode":"projects","toSide":"left"},
+		{"id":"e3","fromNode":"center","fromSide":"left","toNode":"writing","toSide":"right"},
+		{"id":"e4","fromNode":"center","fromSide":"right","toNode":"knowledge","toSide":"left"},
+		{"id":"e5","fromNode":"center","fromSide":"left","toNode":"tracking","toSide":"right"},
+		{"id":"e6","fromNode":"center","fromSide":"right","toNode":"creative","toSide":"left"}
+	]
+}

@@ -1,0 +1,77 @@
+# claude-obsidian-assistant
+
+A starter Obsidian vault wired for Claude Code. Fork it, open it, and let Claude manage your notes. (or just link this github to claude and it'll probably figure things out!)
+
+The repository is simple, give Claude a structured place to write, and tell it what you want. The vault comes with a Johnny Decimal folder system, a `/obsidian` skill for syncing projects, and some themes to make it not ugly. Everything else is just you explaining your preferences to Claude and letting it build from there.
+
+## Get Started
+
+If you don't have Obsidian yet, grab it at [obsidian.md](https://obsidian.md/) — it's free for personal use.
+
+1. Fork & clone this repo
+2. Open the folder as a vault in Obsidian
+3. Copy the skill file into your Claude commands: `cp claude-code/obsidian-sync.md ~/.claude/commands/obsidian.md`
+4. Open that copied file and set `VAULT_PATH` to your vault's absolute path
+5. Run `/obsidian` from any project directory
+6. *(Optional)* Install [Dataview](https://github.com/blacksmithgu/obsidian-dataview) — only the home dashboard (`00.01 Home`) relies on it, but it's a great community plugin to have. To install: Settings → Community Plugins → Turn on community plugins → Browse → search "Dataview" → Install → Enable.
+
+## The `/obsidian` Skill
+
+This is the main thing. Run `/obsidian` from any project directory and Claude will:
+
+- Match your working directory to a vault file (or create one)
+- Read your codebase — package.json, git history, directory structure
+- Give you a menu: update project info, write a dev log, refresh key files, generate an architecture canvas, or do everything at once
+
+Project files get auto-numbered (`11.01`, `11.02`, etc.) and follow a consistent format with stack tables, architecture notes, and dated dev logs. Architecture canvases are color-coded Obsidian canvas files with nodes grouped by layer.
+
+The skill file is `claude-code/obsidian-sync.md` — read through it to see exactly what each phase does **AND PLEASE MAKE ADJUSTMENTS TO FIT YOUR OWN NEEDS/WANTS**. The canvas JSON format is documented in `claude-code/canvas-reference.md`. (This may not be needed but can help Claude understand canvas file structures quicker)
+
+## Structure
+
+[Johnny Decimal](https://johnnydecimal.com/) folders with color-coded sidebar borders:
+
+```
+00-09 System      — Meta, templates, vault config
+10-19 Projects    — Active builds, archive, skills
+20-29 Writing     — Essays, notes, daily journal
+30-39 Knowledge   — Resources, reading list
+40-49 Tracking    — Finance, routines, to-dos
+50-59 Creative    — Drawings, media, experiments
+```
+
+Each theme is fully self-contained with its own sidebar styling. Want to add a `60-69` area? Add the folder, add a CSS rule, **or just ask Claude to do it**.
+
+## Themes
+
+5 CSS snippets in `.obsidian/snippets/` — each theme is fully self-contained. Toggle them in Settings → Appearance → CSS Snippets. Only enable one at a time.
+
+| Theme | What it looks like |
+|-------|-------------------|
+| `base-theme.css` | Clean dark theme. Palette is all CSS variables at the top — swap them to make it yours. |
+| `crt-terminal.css` | Green phosphor CRT monitor. |
+| `y2k-web1.css` | 90s GeoCities energy. |
+| `runescape.css` | inspired by the best game ever made |
+| `coquette.css` | Pastel pink light theme with Sailor Moon folder icons. |
+
+Some themes include their own icons and colors, so turn off `base-theme.css` when using one.
+If you're interested in making your own templates, explore https://www.rw-designer.com/icon-library for some inspiration! : )
+
+![Base Theme](screenshots/base-theme.png)
+![CRT Terminal](screenshots/crt-terminal.png)
+![Y2K Web 1.0](screenshots/y2k-web1.png)
+![RuneScape](screenshots/runescape.png)
+![Coquette](screenshots/coquette.png)
+
+## Making It Yours
+
+This is a starting point — everything is meant to be changed. Claude Code works directly with Obsidian's file structure (no CLI or plugin needed), so the best way to customize is to just tell Claude what you want. *"Change the accent color to blue."* *"I want my dev logs to include time spent."* It can read and modify every file in the vault.
+
+Here are some directions you can take it:
+
+- **Session Memory** — Have Claude read the vault entry for your current project before starting work so it already knows the stack, recent bugs, and past decisions. After the session it updates the entry. Each session builds on the last.
+- **Auto-Documentation** — Use [Claude Code hooks](https://docs.anthropic.com/en/docs/claude-code/hooks) to trigger vault updates after commits or at session end. Dev logs write themselves.
+- **GitHub Integration** — Pull open issues, PR status, and CI health into vault entries using the GitHub MCP tools.
+- **Cross-Project Queries** — Build a `/vault-query` skill that answers questions across all your projects: *"Which project uses Redis?"*, *"What auth pattern did I use in the last app?"*
+- **Decision Logs** — Record architectural decisions as they happen — what was considered, what was chosen, and why.
+- **Custom Themes** — Every theme in this vault was built by Claude from a one-line prompt. Want a Dracula theme? A theme that matches your company brand? Just ask.

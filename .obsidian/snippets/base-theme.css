@@ -1,0 +1,260 @@
+/* base-theme.css — Clean dark theme for claude-vault
+   Swap the palette variables below to customize colors.
+   Disable this snippet when using CRT, Y2K, or RuneScape themes. */
+
+/* === PALETTE — Edit these to change the entire theme === */
+:root {
+  --bg-primary: #1a1a2e;       /* Main background */
+  --bg-secondary: #16213e;     /* Sidebar, secondary panels */
+  --bg-tertiary: #0f3460;      /* Hover states, active items */
+  --text-primary: #e0ddd5;     /* Main text */
+  --text-secondary: #a8a4a0;   /* Muted text, metadata */
+  --text-faint: #6b6660;       /* Very muted text */
+  --accent: #e94560;           /* Links, highlights, accent color */
+  --accent-dim: #b8364d;       /* Dimmed accent for borders */
+  --border: #2a2a4a;           /* Borders and dividers */
+  --code-bg: #0d1117;          /* Code block background */
+  --tag-bg: #2a2a4a;           /* Tag background */
+  --tag-text: #e94560;         /* Tag text color */
+}
+
+/* === CORE THEME === */
+body {
+  --background-primary: var(--bg-primary);
+  --background-primary-alt: var(--bg-secondary);
+  --background-secondary: var(--bg-secondary);
+  --background-secondary-alt: var(--bg-tertiary);
+  --background-modifier-border: var(--border);
+  --background-modifier-form-field: var(--bg-secondary);
+  --background-modifier-hover: var(--bg-tertiary);
+  --text-normal: var(--text-primary);
+  --text-muted: var(--text-secondary);
+  --text-faint: var(--text-faint);
+  --text-accent: var(--accent);
+  --text-accent-hover: var(--accent);
+  --interactive-accent: var(--accent);
+  --interactive-accent-hover: var(--accent-dim);
+}
+
+/* === HEADINGS === */
+.markdown-rendered h1,
+.cm-header-1 {
+  color: var(--accent) !important;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+}
+
+.markdown-rendered h2,
+.cm-header-2 {
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 2px;
+}
+
+.markdown-rendered h3,
+.cm-header-3 {
+  color: var(--text-secondary) !important;
+}
+
+/* === LINKS === */
+a, .internal-link, .cm-hmd-internal-link {
+  color: var(--accent) !important;
+  text-decoration: none;
+}
+a:hover, .internal-link:hover {
+  text-decoration: underline;
+}
+
+/* === CODE === */
+.markdown-rendered code,
+.cm-s-obsidian span.cm-inline-code {
+  background: var(--code-bg);
+  color: var(--accent);
+  padding: 2px 4px;
+}
+.markdown-rendered pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  padding: 12px;
+}
+
+/* === TAGS === */
+.tag {
+  background: var(--tag-bg) !important;
+  color: var(--tag-text) !important;
+  padding: 2px 8px;
+  font-size: 0.85em;
+}
+
+/* === TABLES === */
+.markdown-rendered table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.markdown-rendered th {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  text-align: left;
+}
+.markdown-rendered td {
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+}
+
+/* === BLOCKQUOTES === */
+blockquote {
+  border-left: 3px solid var(--accent) !important;
+  color: var(--text-secondary);
+  padding-left: 12px;
+}
+
+/* === CALLOUTS === */
+
+/* > [!terminal] - command/output callout */
+.callout[data-callout="terminal"] {
+  --callout-color: 80, 250, 123;
+  --callout-icon: terminal;
+  background: var(--code-bg);
+  border-left: 3px solid rgb(80, 250, 123);
+}
+
+/* > [!signal] - important alert */
+.callout[data-callout="signal"] {
+  --callout-color: 233, 69, 96;
+  --callout-icon: alert-triangle;
+  border-left: 3px solid var(--accent);
+}
+
+/* > [!archive] - historical/archived content */
+.callout[data-callout="archive"] {
+  --callout-color: 168, 164, 160;
+  --callout-icon: archive;
+  border-left: 3px solid var(--text-secondary);
+  opacity: 0.85;
+}
+
+/* > [!warning] */
+.callout[data-callout="warning"] {
+  --callout-color: 230, 180, 40;
+  --callout-icon: alert-circle;
+  border-left: 3px solid rgb(230, 180, 40);
+}
+
+/* > [!status] - status/progress callout */
+.callout[data-callout="status"] {
+  --callout-color: 51, 153, 204;
+  --callout-icon: activity;
+  border-left: 3px solid rgb(51, 153, 204);
+}
+
+/* > [!idea] */
+.callout[data-callout="idea"] {
+  --callout-color: 180, 130, 255;
+  --callout-icon: lightbulb;
+  border-left: 3px solid rgb(180, 130, 255);
+}
+
+/* === CUSTOM CHECKBOXES === */
+/* - [x] Done */
+/* - [/] In progress */
+/* - [-] Cancelled */
+/* - [>] Deferred */
+/* - [!] Important */
+/* - [?] Question */
+/* - [*] Star */
+/* - [i] Info */
+
+input[data-task="x"]:checked,
+li[data-task="x"] > input:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+li[data-task="/"] > input {
+  background: linear-gradient(to right, var(--accent) 50%, transparent 50%);
+  border-color: var(--accent);
+}
+li[data-task="-"] > input {
+  background: var(--text-faint);
+  border-color: var(--text-faint);
+}
+li[data-task="-"] {
+  text-decoration: line-through;
+  color: var(--text-faint);
+}
+li[data-task=">"] > input {
+  border-color: rgb(51, 153, 204);
+  background: rgb(51, 153, 204);
+}
+li[data-task="!"] > input {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+li[data-task="?"] > input {
+  border-color: rgb(180, 130, 255);
+  background: rgb(180, 130, 255);
+}
+li[data-task="*"] > input {
+  border-color: rgb(230, 180, 40);
+  background: rgb(230, 180, 40);
+}
+li[data-task="i"] > input {
+  border-color: rgb(80, 250, 123);
+  background: rgb(80, 250, 123);
+}
+
+/* === DASHBOARD LAYOUT (cssclasses: dashboard) === */
+.dashboard .markdown-rendered {
+  padding: 20px;
+}
+.dashboard .markdown-rendered h1 {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.dashboard .dataview.table-view-table {
+  font-size: 0.9em;
+}
+.dashboard .dataview.table-view-table th {
+  background: var(--bg-tertiary);
+}
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bg-tertiary);
+}
+
+/* === SIDEBAR === */
+.nav-folder-title {
+  color: var(--text-secondary);
+}
+.nav-file-title {
+  color: var(--text-primary);
+}
+.nav-file-title:hover,
+.nav-folder-title:hover {
+  background: var(--bg-tertiary);
+}
+
+/* === JD AREA SIDEBAR COLORS === */
+.nav-folder-title[data-path^="00-09"] { border-left: 3px solid #888888 !important; padding-left: 6px; }
+.nav-folder-title[data-path^="10-19"] { border-left: 3px solid #e06030 !important; padding-left: 6px; }
+.nav-folder-title[data-path^="20-29"] { border-left: 3px solid #d4b82a !important; padding-left: 6px; }
+.nav-folder-title[data-path^="30-39"] { border-left: 3px solid #3399cc !important; padding-left: 6px; }
+.nav-folder-title[data-path^="40-49"] { border-left: 3px solid #44a830 !important; padding-left: 6px; }
+.nav-folder-title[data-path^="50-59"] { border-left: 3px solid #9944cc !important; padding-left: 6px; }
+
+.nav-file-title[data-path^="10-19"] { border-left: 2px solid #e06030 !important; padding-left: 6px; }
+.nav-file-title[data-path^="20-29"] { border-left: 2px solid #d4b82a !important; padding-left: 6px; }
+.nav-file-title[data-path^="30-39"] { border-left: 2px solid #3399cc !important; padding-left: 6px; }
+.nav-file-title[data-path^="40-49"] { border-left: 2px solid #44a830 !important; padding-left: 6px; }
+.nav-file-title[data-path^="50-59"] { border-left: 2px solid #9944cc !important; padding-left: 6px; }
