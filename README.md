@@ -46,6 +46,29 @@ The vault map canvas (`00.02 Vault Map`) gives you a bird's-eye view of everythi
 
 ![Vault Map](screenshots/vault-map.png)
 
+## How to Use
+
+**Starting a new project:**
+1. `cd` into your project directory
+2. Run `/obsidian` in Claude Code
+3. Choose "Create project file + architecture canvas" (or "Full sync")
+4. Claude reads your codebase and writes a vault entry — stack, key files, architecture, dev log
+
+**End of a coding session:**
+1. Run `/obsidian` from the project directory
+2. Choose "Add dev log entry"
+3. Claude combines your git commits and session context into a dated entry in the vault
+
+**Coming back to an old project:**
+- Open the vault in Obsidian and find the project file under `10-19 Projects/11 Active/`
+- The stack table, architecture notes, and dev log tell you exactly where you left off
+- Or ask Claude directly: *"What was I last working on in my weather-dashboard project?"*
+
+**Without running `/obsidian` at all:**
+- Claude can read and edit vault files directly in any session
+- Ask things like *"add a note to my weather-dashboard dev log"* or *"what stack does my auth service use?"*
+- The vault is just files — Claude has full access
+
 ## Structure
 
 [Johnny Decimal](https://johnnydecimal.com/) folders with color-coded sidebar borders:
