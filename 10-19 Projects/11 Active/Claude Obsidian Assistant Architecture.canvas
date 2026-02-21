@@ -1,0 +1,41 @@
+{
+	"nodes":[
+		{"id":"title","type":"text","text":"# Claude Obsidian Assistant\nObsidian vault + Claude Code sync skill","x":200,"y":-160,"width":720,"height":100},
+
+		{"id":"lbl-entry","type":"text","text":"**Entry**","x":-40,"y":0,"width":180,"height":60,"color":"6"},
+		{"id":"cli","type":"text","text":"## Claude Code CLI\n`/obsidian` command\nRun from any project directory","x":200,"y":0,"width":340,"height":120,"color":"1"},
+		{"id":"claude-md","type":"text","text":"## CLAUDE.md\nVault structure + conventions\nInjected at session start","x":580,"y":0,"width":340,"height":120,"color":"2"},
+
+		{"id":"lbl-skill","type":"text","text":"**Skill**","x":-40,"y":220,"width":180,"height":60,"color":"6"},
+		{"id":"skill","type":"text","text":"## obsidian-sync.md\nPhase 1: Detect — match cwd to vault file  |  Phase 2: Analyze — git, package.json, dir scan\nPhase 3: Menu — choose actions  |  Phase 4: Execute — write vault files  |  Phase 5: Report","x":200,"y":220,"width":720,"height":120,"color":"2"},
+
+		{"id":"lbl-analysis","type":"text","text":"**Analysis**","x":-40,"y":440,"width":180,"height":60,"color":"6"},
+		{"id":"codebase","type":"text","text":"## Codebase Analysis\ngit log, package.json\ndir structure, remote URL","x":200,"y":440,"width":340,"height":120,"color":"5"},
+		{"id":"vault-scan","type":"text","text":"## Vault Scan\n11.XX files, JD areas\nexisting canvas nodes","x":580,"y":440,"width":340,"height":120,"color":"5"},
+
+		{"id":"lbl-output","type":"text","text":"**Outputs**","x":-40,"y":660,"width":180,"height":60,"color":"6"},
+		{"id":"proj-file","type":"text","text":"## Project Files\n11.XX.md — stack, architecture,\nkey files, dev logs","x":200,"y":660,"width":220,"height":120,"color":"4"},
+		{"id":"arch-canvas","type":"text","text":"## Architecture Canvases\nColor-coded .canvas diagrams\nof project layers","x":460,"y":660,"width":220,"height":120,"color":"4"},
+		{"id":"vault-map","type":"text","text":"## Vault Map\n00.02 canvas updated\nwith new projects & notes","x":720,"y":660,"width":200,"height":120,"color":"4"},
+
+		{"id":"lbl-vault","type":"text","text":"**Vault**","x":-40,"y":880,"width":180,"height":60,"color":"6"},
+		{"id":"jd-00","type":"text","text":"## 00-09 System\nMeta, templates, config","x":200,"y":880,"width":200,"height":80},
+		{"id":"jd-10","type":"text","text":"## 10-19 Projects\nActive, archive, skills","x":440,"y":880,"width":200,"height":80,"color":"2"},
+		{"id":"jd-20","type":"text","text":"## 20-29 Writing\nEssays, notes, journal","x":680,"y":880,"width":200,"height":80,"color":"3"},
+		{"id":"jd-30","type":"text","text":"## 30-39 Knowledge\nResources, reading","x":200,"y":1000,"width":200,"height":80,"color":"5"},
+		{"id":"jd-40","type":"text","text":"## 40-49 Tracking\nFinance, routines, to-dos","x":440,"y":1000,"width":200,"height":80,"color":"4"},
+		{"id":"jd-50","type":"text","text":"## 50-59 Creative\nDrawings, media","x":680,"y":1000,"width":200,"height":80,"color":"6"}
+	],
+	"edges":[
+		{"id":"e-cli-skill","fromNode":"cli","fromSide":"bottom","toNode":"skill","toSide":"top"},
+		{"id":"e-md-skill","fromNode":"claude-md","fromSide":"bottom","toNode":"skill","toSide":"top"},
+		{"id":"e-skill-codebase","fromNode":"skill","fromSide":"bottom","toNode":"codebase","toSide":"top"},
+		{"id":"e-skill-vscan","fromNode":"skill","fromSide":"bottom","toNode":"vault-scan","toSide":"top"},
+		{"id":"e-codebase-proj","fromNode":"codebase","fromSide":"bottom","toNode":"proj-file","toSide":"top"},
+		{"id":"e-codebase-arch","fromNode":"codebase","fromSide":"bottom","toNode":"arch-canvas","toSide":"top"},
+		{"id":"e-vscan-vmap","fromNode":"vault-scan","fromSide":"bottom","toNode":"vault-map","toSide":"top"},
+		{"id":"e-proj-jd10","fromNode":"proj-file","fromSide":"bottom","toNode":"jd-10","toSide":"top"},
+		{"id":"e-arch-jd10","fromNode":"arch-canvas","fromSide":"bottom","toNode":"jd-10","toSide":"top"},
+		{"id":"e-vmap-jd00","fromNode":"vault-map","fromSide":"bottom","toNode":"jd-00","toSide":"top"}
+	]
+}

@@ -6,7 +6,14 @@
 		{"id":"writing","type":"text","text":"## 20-29 Writing\nEssays, notes, daily journal","x":-500,"y":100,"width":280,"height":100,"color":"3"},
 		{"id":"knowledge","type":"text","text":"## 30-39 Knowledge\nResources, reading list","x":300,"y":100,"width":280,"height":100,"color":"5"},
 		{"id":"tracking","type":"text","text":"## 40-49 Tracking\nFinance, routines, to-dos","x":-500,"y":350,"width":280,"height":100,"color":"4"},
-		{"id":"creative","type":"text","text":"## 50-59 Creative\nDrawings, media, experiments","x":300,"y":350,"width":280,"height":100,"color":"6"}
+		{"id":"creative","type":"text","text":"## 50-59 Creative\nDrawings, media, experiments","x":300,"y":350,"width":280,"height":100,"color":"6"},
+		{"id":"proj-example","type":"text","text":"## Weather Dashboard\nReal-time weather app built with React","x":640,"y":-320,"width":280,"height":100,"color":"2"},
+		{"id":"proj-coa","type":"text","text":"## Claude Obsidian Assistant\nStarter vault pre-configured for Claude Code","x":640,"y":-200,"width":280,"height":100,"color":"2"},
+		{"id":"note-home","type":"text","text":"## 00.01 Home\nDataview dashboard","x":-840,"y":-270,"width":240,"height":80},
+		{"id":"note-scratch","type":"text","text":"## 22.01 Scratch Pad","x":-840,"y":110,"width":240,"height":80,"color":"3"},
+		{"id":"note-resources","type":"text","text":"## 31.01 Resources","x":640,"y":60,"width":240,"height":80,"color":"5"},
+		{"id":"note-reading","type":"text","text":"## 32.01 Reading List","x":640,"y":160,"width":240,"height":80,"color":"5"},
+		{"id":"note-todos","type":"text","text":"## 42.01 To-Dos","x":-840,"y":350,"width":240,"height":80,"color":"4"}
 	],
 	"edges":[
 		{"id":"e1","fromNode":"center","fromSide":"left","toNode":"system","toSide":"right"},
@@ -14,6 +21,13 @@
 		{"id":"e3","fromNode":"center","fromSide":"left","toNode":"writing","toSide":"right"},
 		{"id":"e4","fromNode":"center","fromSide":"right","toNode":"knowledge","toSide":"left"},
 		{"id":"e5","fromNode":"center","fromSide":"left","toNode":"tracking","toSide":"right"},
-		{"id":"e6","fromNode":"center","fromSide":"right","toNode":"creative","toSide":"left"}
+		{"id":"e6","fromNode":"center","fromSide":"right","toNode":"creative","toSide":"left"},
+		{"id":"e-proj-example","fromNode":"proj-example","fromSide":"left","toNode":"projects","toSide":"right"},
+		{"id":"e-proj-coa","fromNode":"proj-coa","fromSide":"left","toNode":"projects","toSide":"right"},
+		{"id":"e-note-home","fromNode":"note-home","fromSide":"right","toNode":"system","toSide":"left"},
+		{"id":"e-note-scratch","fromNode":"note-scratch","fromSide":"right","toNode":"writing","toSide":"left"},
+		{"id":"e-note-resources","fromNode":"note-resources","fromSide":"left","toNode":"knowledge","toSide":"right"},
+		{"id":"e-note-reading","fromNode":"note-reading","fromSide":"left","toNode":"knowledge","toSide":"right"},
+		{"id":"e-note-todos","fromNode":"note-todos","fromSide":"right","toNode":"tracking","toSide":"left"}
 	]
 }
