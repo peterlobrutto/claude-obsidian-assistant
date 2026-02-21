@@ -42,6 +42,10 @@ Each canvas groups nodes by layer (entry, API, services, data, external, etc) so
 
 ![Architecture Canvas](screenshots/architecture-canvas.png)
 
+The vault map canvas (`00.02 Vault Map`) gives you a bird's-eye view of everything in the vault — JD areas, active projects, and key notes — all linked together.
+
+![Vault Map](screenshots/vault-map.png)
+
 ## Structure
 
 [Johnny Decimal](https://johnnydecimal.com/) folders with color-coded sidebar borders:
