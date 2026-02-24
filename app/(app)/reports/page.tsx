@@ -412,13 +412,13 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
           <p className="text-sm text-gray-500 mt-0.5">Generate and export operational reports</p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <Calendar className="w-4 h-4 text-gray-500" />
             <Label className="text-sm text-gray-600 whitespace-nowrap">Date Range:</Label>
           </div>
@@ -426,19 +426,19 @@ export default function ReportsPage() {
             type="date"
             value={dateFrom}
             onChange={e => setDateFrom(e.target.value)}
-            className="h-9 w-38 text-sm"
+            className="h-9 w-36 text-sm"
           />
           <ArrowRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
           <Input
             type="date"
             value={dateTo}
             onChange={e => setDateTo(e.target.value)}
-            className="h-9 w-38 text-sm"
+            className="h-9 w-36 text-sm"
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {reportCards.map(report => {
           const Icon = report.icon;
           return (

@@ -112,9 +112,9 @@ export default function POSPage() {
         <p className="text-sm text-gray-500 mt-0.5">Process copay collections at the point of sale</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* Left: Patient Lookup + Line Items */}
-        <div className="col-span-2 space-y-4">
+        <div className="md:col-span-2 space-y-4">
           {/* Patient Lookup */}
           <Card className="border border-gray-200 shadow-sm">
             <CardHeader className="pb-3 pt-5 px-5">

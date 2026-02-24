@@ -63,13 +63,15 @@ export default function SettingsPage() {
       </div>
 
       <Tabs defaultValue="pharmacy">
-        <TabsList className="bg-gray-100">
-          <TabsTrigger value="pharmacy">Pharmacy Info</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="printer">Label Printer</TabsTrigger>
-          <TabsTrigger value="payers">Payers</TabsTrigger>
-          <TabsTrigger value="willcall">Will-Call Settings</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto">
+          <TabsList className="bg-gray-100 w-max">
+            <TabsTrigger value="pharmacy" className="whitespace-nowrap">Pharmacy Info</TabsTrigger>
+            <TabsTrigger value="users" className="whitespace-nowrap">Users</TabsTrigger>
+            <TabsTrigger value="printer" className="whitespace-nowrap">Label Printer</TabsTrigger>
+            <TabsTrigger value="payers" className="whitespace-nowrap">Payers</TabsTrigger>
+            <TabsTrigger value="willcall" className="whitespace-nowrap">Will-Call Settings</TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* Pharmacy Info */}
         <TabsContent value="pharmacy" className="mt-4">
