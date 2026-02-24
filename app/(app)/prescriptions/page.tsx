@@ -72,17 +72,20 @@ function DURAlertCard({ alert, onAcknowledge, onOverride }: {
               {alert.severity.toUpperCase()} — {alert.type.replace('_', ' ').toUpperCase()}
             </Badge>
           </div>
-          <p className="text-sm text-gray-800">{alert.description}</p>
+          <p className="text-sm text-gray-800 whitespace-pre-line">{alert.description}</p>
         </div>
       </div>
-      <div className="flex gap-2 mt-3 ml-7">
-        <Button size="sm" variant="outline" onClick={onAcknowledge} className="gap-1.5 text-gray-700">
-          <Check className="w-3.5 h-3.5" />
-          Acknowledge
-        </Button>
+      <div className="flex flex-wrap gap-2 mt-3 ml-7">
         <Button size="sm" className="gap-1.5 bg-red-600 hover:bg-red-700 text-white" onClick={onOverride}>
           <X className="w-3.5 h-3.5" />
-          Override
+          Override with Reason
+        </Button>
+        <Button size="sm" variant="outline" onClick={onAcknowledge} className="gap-1.5 text-gray-700">
+          <Check className="w-3.5 h-3.5" />
+          Reject Rx
+        </Button>
+        <Button size="sm" variant="outline" onClick={onAcknowledge} className="gap-1.5 text-gray-700">
+          Contact Prescriber
         </Button>
       </div>
     </div>

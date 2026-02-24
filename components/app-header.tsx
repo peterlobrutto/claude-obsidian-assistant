@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Bell, ChevronRight, Menu } from "lucide-react";
+import { Bell, ChevronRight, Menu, Sparkles } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,9 +30,10 @@ const breadcrumbMap: Record<string, { label: string; parent?: string }> = {
 
 interface AppHeaderProps {
   onMenuToggle: () => void;
+  onAgentToggle: () => void;
 }
 
-export function AppHeader({ onMenuToggle }: AppHeaderProps) {
+export function AppHeader({ onMenuToggle, onAgentToggle }: AppHeaderProps) {
   const pathname = usePathname();
 
   let crumbs: { label: string; href: string }[] = [{ label: "Home", href: "/dashboard" }];
@@ -80,6 +81,33 @@ export function AppHeader({ onMenuToggle }: AppHeaderProps) {
       {/* Right side */}
       <div className="flex items-center gap-2 md:gap-3">
         <span className="text-sm text-gray-500 font-medium hidden lg:inline">Riverside Pharmacy</span>
+
+        {/* Agent toggle button */}
+        <div className="relative">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onAgentToggle}
+            className="gap-1.5 text-gray-600 hover:text-[#7C3AED] hover:bg-purple-50 md:hidden"
+            aria-label="Toggle AI Agent"
+          >
+            <Sparkles className="w-4 h-4" size={16} />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onAgentToggle}
+            className="gap-1.5 text-gray-600 hover:text-[#7C3AED] hover:bg-purple-50 hidden md:flex"
+            aria-label="Toggle AI Agent"
+          >
+            <Sparkles className="w-4 h-4" size={16} />
+            <span className="text-sm font-medium">Agent</span>
+          </Button>
+          <Badge className="absolute -top-1 -right-1 w-4 h-4 p-0 flex items-center justify-center text-[10px] bg-red-500 hover:bg-red-500">
+            3
+          </Badge>
+        </div>
+
         <div className="relative">
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="w-4.5 h-4.5" size={18} />
