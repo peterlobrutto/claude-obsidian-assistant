@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SWRegister } from "@/components/sw-register";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,8 +14,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Purposefill — Pharmacy Management System",
+  title: "Purposefill — Pharmacy OS",
   description: "Modern cloud-based pharmacy management for independent pharmacies",
+  applicationName: "Purposefill",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Purposefill",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#7C3AED",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -24,10 +42,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
+        <SWRegister />
       </body>
     </html>
   );
