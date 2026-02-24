@@ -71,14 +71,14 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold text-gray-900">Good morning, Dr. Chen</h1>
           <p className="text-sm text-gray-500 mt-0.5">Thursday, January 25, 2024 &bull; Riverside Pharmacy</p>
         </div>
-        <div className="flex items-center gap-1 text-sm text-green-600 bg-green-50 border border-green-200 rounded-full px-3 py-1">
+        <div className="hidden sm:flex items-center gap-1 text-sm text-green-600 bg-green-50 border border-green-200 rounded-full px-3 py-1">
           <Activity className="w-3.5 h-3.5" />
           <span className="font-medium">All systems operational</span>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {statsCards.map((card) => {
           const Icon = card.icon;
           return (
@@ -103,7 +103,7 @@ export default function DashboardPage() {
       {/* Quick Actions */}
       <div>
         <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Quick Actions</h2>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <Button asChild className="bg-[#7C3AED] hover:bg-[#6d28d9] text-white gap-2">
             <Link href="/prescriptions/new">
               <Plus className="w-4 h-4" />
@@ -132,9 +132,9 @@ export default function DashboardPage() {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Activity Feed */}
-        <Card className="col-span-2 border border-gray-200 shadow-sm">
+        <Card className="md:col-span-2 border border-gray-200 shadow-sm">
           <CardHeader className="pb-3 pt-5 px-5">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-semibold text-gray-900">Recent Activity</CardTitle>
