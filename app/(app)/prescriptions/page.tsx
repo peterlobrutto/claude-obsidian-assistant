@@ -139,19 +139,21 @@ export default function PrescriptionsPage() {
       </div>
 
       <Tabs defaultValue="pending_verification">
-        <TabsList className="bg-gray-100">
-          {tabConfig.map(tab => {
-            const count = rxList.filter(r => r.status === tab.key).length;
-            return (
-              <TabsTrigger key={tab.key} value={tab.key} className="gap-2">
-                {tab.label}
-                {count > 0 && (
-                  <Badge className="bg-[#7C3AED] text-white text-xs px-1.5 py-0 ml-1">{count}</Badge>
-                )}
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
+        <div className="overflow-x-auto">
+          <TabsList className="bg-gray-100 w-max">
+            {tabConfig.map(tab => {
+              const count = rxList.filter(r => r.status === tab.key).length;
+              return (
+                <TabsTrigger key={tab.key} value={tab.key} className="gap-2 whitespace-nowrap">
+                  {tab.label}
+                  {count > 0 && (
+                    <Badge className="bg-[#7C3AED] text-white text-xs px-1.5 py-0 ml-1">{count}</Badge>
+                  )}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+        </div>
 
         {tabConfig.map(tab => {
           const rxs = rxList.filter(r => r.status === tab.key);
