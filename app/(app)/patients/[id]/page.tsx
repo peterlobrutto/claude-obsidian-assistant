@@ -71,52 +71,63 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-4">
-          <Button asChild variant="ghost" size="sm" className="gap-2 text-gray-600">
-            <Link href="/patients">
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Link>
-          </Button>
+      <div className="space-y-2">
+        <Button asChild variant="ghost" size="sm" className="gap-1.5 text-gray-500 -ml-2">
+          <Link href="/patients">
+            <ArrowLeft className="w-4 h-4" />
+            Patients
+          </Link>
+        </Button>
+        <div className="flex items-start justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
               {patient.firstName} {patient.lastName}
             </h1>
-            <div className="flex items-center gap-3 mt-0.5 text-sm text-gray-500">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5 text-sm text-gray-500">
               <span>DOB: {formatDOB(patient.dob)}</span>
-              <span>&bull;</span>
-              <span>{calcAge(patient.dob)} years old</span>
+              <span className="hidden sm:inline">&bull;</span>
+              <span>{calcAge(patient.dob)} yrs</span>
               <span>&bull;</span>
               <span>ID: {patient.id.toUpperCase()}</span>
             </div>
           </div>
-        </div>
-        <div className="flex gap-2">
-          <Button asChild variant="outline" className="gap-2">
-            <Link href="/prescriptions/new">
-              <Plus className="w-4 h-4" />
-              New Rx
-            </Link>
-          </Button>
-          <Button className="bg-[#7C3AED] hover:bg-[#6d28d9] text-white gap-2">
-            <Edit className="w-4 h-4" />
-            Edit Patient
-          </Button>
+          <div className="flex gap-2 shrink-0">
+            <Button asChild variant="outline" className="gap-2 hidden sm:flex">
+              <Link href="/prescriptions/new">
+                <Plus className="w-4 h-4" />
+                New Rx
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="gap-1.5 sm:hidden">
+              <Link href="/prescriptions/new">
+                <Plus className="w-4 h-4" />
+                Rx
+              </Link>
+            </Button>
+            <Button className="bg-[#7C3AED] hover:bg-[#6d28d9] text-white gap-2 hidden sm:flex">
+              <Edit className="w-4 h-4" />
+              Edit Patient
+            </Button>
+            <Button size="sm" className="bg-[#7C3AED] hover:bg-[#6d28d9] text-white sm:hidden">
+              <Edit className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
       <Tabs defaultValue="demographics">
-        <TabsList className="bg-gray-100">
-          <TabsTrigger value="demographics">Demographics</TabsTrigger>
-          <TabsTrigger value="insurance">Insurance</TabsTrigger>
-          <TabsTrigger value="clinical">Clinical</TabsTrigger>
-          <TabsTrigger value="history">Rx History ({patientRxs.length})</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto">
+          <TabsList className="bg-gray-100 w-max">
+            <TabsTrigger value="demographics" className="whitespace-nowrap">Demographics</TabsTrigger>
+            <TabsTrigger value="insurance" className="whitespace-nowrap">Insurance</TabsTrigger>
+            <TabsTrigger value="clinical" className="whitespace-nowrap">Clinical</TabsTrigger>
+            <TabsTrigger value="history" className="whitespace-nowrap">Rx History ({patientRxs.length})</TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* Demographics Tab */}
         <TabsContent value="demographics" className="mt-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Card className="border border-gray-200 shadow-sm">
               <CardHeader className="pb-3 pt-5 px-5">
                 <div className="flex items-center justify-between">
@@ -195,7 +206,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
 
         {/* Insurance Tab */}
         <TabsContent value="insurance" className="mt-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Card className="border border-gray-200 shadow-sm">
               <CardHeader className="pb-3 pt-5 px-5">
                 <div className="flex items-center justify-between">
@@ -279,7 +290,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
 
         {/* Clinical Tab */}
         <TabsContent value="clinical" className="mt-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Card className="border border-gray-200 shadow-sm">
               <CardHeader className="pb-3 pt-5 px-5">
                 <div className="flex items-center justify-between">
@@ -371,12 +382,11 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
               <Table>
                 <TableHeader>
                   <TableRow className="bg-gray-50">
-                    <TableHead className="pl-5 font-semibold text-gray-700 text-xs uppercase tracking-wide">Rx #</TableHead>
-                    <TableHead className="font-semibold text-gray-700 text-xs uppercase tracking-wide">Drug</TableHead>
-                    <TableHead className="font-semibold text-gray-700 text-xs uppercase tracking-wide">Qty / Days</TableHead>
-                    <TableHead className="font-semibold text-gray-700 text-xs uppercase tracking-wide">Prescriber</TableHead>
-                    <TableHead className="font-semibold text-gray-700 text-xs uppercase tracking-wide">Written</TableHead>
-                    <TableHead className="font-semibold text-gray-700 text-xs uppercase tracking-wide">Refills Left</TableHead>
+                    <TableHead className="pl-5 font-semibold text-gray-700 text-xs uppercase tracking-wide">Drug</TableHead>
+                    <TableHead className="hidden sm:table-cell font-semibold text-gray-700 text-xs uppercase tracking-wide">Qty / Days</TableHead>
+                    <TableHead className="hidden md:table-cell font-semibold text-gray-700 text-xs uppercase tracking-wide">Prescriber</TableHead>
+                    <TableHead className="hidden lg:table-cell font-semibold text-gray-700 text-xs uppercase tracking-wide">Written</TableHead>
+                    <TableHead className="hidden sm:table-cell font-semibold text-gray-700 text-xs uppercase tracking-wide">Refills</TableHead>
                     <TableHead className="font-semibold text-gray-700 text-xs uppercase tracking-wide">Status</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -390,19 +400,19 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
                   ) : (
                     patientRxs.map((rx) => (
                       <TableRow key={rx.id} className="border-gray-100 hover:bg-gray-50">
-                        <TableCell className="pl-5 font-mono text-sm text-gray-700">{rx.rxNumber}</TableCell>
-                        <TableCell>
+                        <TableCell className="pl-5">
                           <p className="text-sm font-medium text-gray-900">{rx.drug}</p>
                           <p className="text-xs text-gray-500">{rx.strength}</p>
+                          <p className="text-xs text-gray-400 font-mono sm:hidden mt-0.5">{rx.rxNumber}</p>
                         </TableCell>
-                        <TableCell className="text-sm text-gray-600">
+                        <TableCell className="hidden sm:table-cell text-sm text-gray-600">
                           {rx.qty} / {rx.daysSupply}d
                         </TableCell>
-                        <TableCell className="text-sm text-gray-600">{rx.prescriberName}</TableCell>
-                        <TableCell className="text-sm text-gray-600">
+                        <TableCell className="hidden md:table-cell text-sm text-gray-600">{rx.prescriberName}</TableCell>
+                        <TableCell className="hidden lg:table-cell text-sm text-gray-600">
                           {new Date(rx.writtenDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                         </TableCell>
-                        <TableCell className="text-sm text-gray-600">{rx.refillsRemaining}</TableCell>
+                        <TableCell className="hidden sm:table-cell text-sm text-gray-600">{rx.refillsRemaining}</TableCell>
                         <TableCell>
                           <Badge className={`text-xs border ${statusColors[rx.status]}`}>
                             {statusLabels[rx.status]}
