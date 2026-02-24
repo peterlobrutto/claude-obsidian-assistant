@@ -113,7 +113,7 @@ export default function WillCallPage() {
                 <TableHead className="hidden md:table-cell font-semibold text-gray-700 text-xs uppercase tracking-wide">Date Filled</TableHead>
                 <TableHead className="hidden sm:table-cell font-semibold text-gray-700 text-xs uppercase tracking-wide">Days</TableHead>
                 <TableHead className="hidden sm:table-cell font-semibold text-gray-700 text-xs uppercase tracking-wide">Copay</TableHead>
-                <TableHead className="font-semibold text-gray-700 text-xs uppercase tracking-wide">Status</TableHead>
+                <TableHead className="hidden sm:table-cell font-semibold text-gray-700 text-xs uppercase tracking-wide">Status</TableHead>
                 <TableHead className="font-semibold text-gray-700 text-xs uppercase tracking-wide">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -133,7 +133,16 @@ export default function WillCallPage() {
                       item.status === "expiring_soon" ? "bg-orange-50/30" : ""
                     }`}
                   >
-                    <TableCell className="pl-5 font-medium text-gray-900">{item.patientName}</TableCell>
+                    <TableCell className="pl-5 font-medium text-gray-900">
+                      {item.patientName}
+                      <span className={`sm:hidden block mt-0.5 text-xs font-medium ${
+                        item.status === 'return_to_stock' ? 'text-red-600' :
+                        item.status === 'expiring_soon' ? 'text-orange-600' :
+                        'text-green-600'
+                      }`}>
+                        {statusConfig[item.status].label}
+                      </span>
+                    </TableCell>
                     <TableCell className="hidden sm:table-cell font-mono text-sm text-gray-700">{item.rxNumber}</TableCell>
                     <TableCell className="text-sm text-gray-700">{item.drug}</TableCell>
                     <TableCell className="hidden md:table-cell text-sm text-gray-600">
@@ -149,7 +158,7 @@ export default function WillCallPage() {
                       </span>
                     </TableCell>
                     <TableCell className="hidden sm:table-cell text-sm font-medium text-gray-900">${item.copay.toFixed(2)}</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       <Badge className={`text-xs border ${statusConfig[item.status].className}`}>
                         {statusConfig[item.status].label}
                       </Badge>
