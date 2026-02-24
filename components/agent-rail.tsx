@@ -97,20 +97,13 @@ export function AgentRail({ isOpen, onClose }: AgentRailProps) {
       {/* Mobile overlay backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          className="fixed inset-0 z-[55] bg-black/50 md:hidden"
           onClick={onClose}
         />
       )}
 
-      {/* Rail panel */}
-      <aside
-        className={cn(
-          // Base
-          'flex flex-col bg-[#FAFAF9] border-r border-gray-200',
-          // Desktop: inline, always visible
-          'hidden md:flex w-72 shrink-0',
-        )}
-      >
+      {/* Desktop rail — inline, always visible */}
+      <aside className="hidden md:flex flex-col w-72 shrink-0 bg-[#FAFAF9] border-r border-gray-200">
         <AgentRailInner
           mode={mode}
           setMode={setMode}
@@ -123,10 +116,10 @@ export function AgentRail({ isOpen, onClose }: AgentRailProps) {
         />
       </aside>
 
-      {/* Mobile drawer from right */}
+      {/* Mobile drawer — slides in from the right */}
       <div
         className={cn(
-          'fixed inset-y-0 right-0 z-50 w-80 flex flex-col bg-[#FAFAF9] border-l border-gray-200 transition-transform duration-200 ease-in-out md:hidden',
+          'fixed inset-y-0 right-0 z-[60] w-[85vw] max-w-sm flex flex-col bg-[#FAFAF9] border-l border-gray-200 shadow-xl transition-transform duration-200 ease-in-out md:hidden',
           isOpen ? 'translate-x-0' : 'translate-x-full'
         )}
       >
