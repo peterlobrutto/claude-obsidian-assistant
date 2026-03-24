@@ -18,6 +18,7 @@ import {
   Phone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { isPostMVP } from "@/lib/deployment";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -72,7 +73,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-0.5">
-        {navItems.map((item) => {
+        {navItems.filter(item => isPostMVP || item.href !== "/inventory").map((item) => {
           const Icon = item.icon;
           const isActive =
             pathname === item.href ||

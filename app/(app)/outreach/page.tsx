@@ -3,7 +3,7 @@
 import { useState } from "react";
 import {
   MessageSquare, Users, TrendingUp, Phone, ChevronUp, ChevronDown,
-  Send, Check, AlertCircle,
+  Send, Check, AlertCircle, RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -158,10 +158,31 @@ function RefillsDueTab() {
   );
 }
 
+// ── Non-Responsive Patients ────────────────────────────────────────────────────
+interface NonResponsivePatient {
+  id: string;
+  patientName: string;
+  drug: string;
+  strength: string;
+  lastContacted: string;
+  attempts: number;
+  reactivated?: boolean;
+}
+
+const initialNonResponsive: NonResponsivePatient[] = [
+  { id: "nr001", patientName: "Frank Delgado", drug: "Metoprolol", strength: "25mg", lastContacted: "2024-01-17", attempts: 3 },
+  { id: "nr002", patientName: "Linda Wu", drug: "Atorvastatin", strength: "40mg", lastContacted: "2024-01-15", attempts: 2 },
+  { id: "nr003", patientName: "George Martinez", drug: "Omeprazole", strength: "20mg", lastContacted: "2024-01-12", attempts: 4 },
+  { id: "nr004", patientName: "Nancy Collins", drug: "Amlodipine", strength: "5mg", lastContacted: "2024-01-10", attempts: 3 },
+  { id: "nr005", patientName: "Kevin Park", drug: "Sertraline", strength: "100mg", lastContacted: "2024-01-08", attempts: 2 },
+];
+
 // ── Outreach Dashboard ─────────────────────────────────────────────────────────
 function OutreachContent() {
   const searchParams = useSearchParams();
   const defaultTab = searchParams.get("tab") === "refills" ? "refills" : "dashboard";
+  const [nonResponsive, setNonResponsive] = useState<NonResponsivePatient[]>(initialNonResponsive);
+  const [nrExpanded, setNrExpanded] = useState(false);
 
   return (
     <div className="space-y-5">
@@ -253,8 +274,94 @@ function OutreachContent() {
           </div>
         </TabsContent>
 
-        <TabsContent value="refills" className="mt-4">
+        <TabsContent value="refills" className="mt-4 space-y-5">
+          {/* Campaign Stats */}
+          <Card className="border border-gray-200 shadow-sm">
+            <CardHeader className="pb-2 pt-4 px-5">
+              <CardTitle className="text-sm font-semibold text-gray-900">Campaign Stats — Last Send</CardTitle>
+            </CardHeader>
+            <CardContent className="px-5 pb-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { label: "Messages Sent", value: "28", color: "text-blue-700", bg: "bg-blue-50 border-blue-100" },
+                  { label: "Confirmed", value: "54%", color: "text-green-700", bg: "bg-green-50 border-green-100" },
+                  { label: "Declined", value: "11%", color: "text-red-700", bg: "bg-red-50 border-red-100" },
+                  { label: "No Response", value: "35%", color: "text-gray-600", bg: "bg-gray-50 border-gray-200" },
+                ].map(s => (
+                  <div key={s.label} className={`border rounded-xl p-4 text-center ${s.bg}`}>
+                    <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
+                    <p className={`text-xs mt-0.5 ${s.color}`}>{s.label}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Predictive Refill Queue */}
           <RefillsDueTab />
+
+          {/* Non-Responsive Patients */}
+          <div className="border border-gray-200 rounded-xl overflow-hidden">
+            <button
+              className="w-full flex items-center justify-between px-5 py-3.5 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+              onClick={() => setNrExpanded(v => !v)}
+            >
+              <span className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-500" />
+                Non-Responsive Patients
+                <span className="text-xs font-normal text-gray-500 ml-1">
+                  ({nonResponsive.filter(p => !p.reactivated).length} patients)
+                </span>
+              </span>
+              {nrExpanded ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+            </button>
+            {nrExpanded && (
+              <div className="bg-white">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-100 bg-gray-50">
+                      <th className="text-left px-5 py-2.5 font-semibold text-gray-600 text-xs uppercase tracking-wide">Patient</th>
+                      <th className="text-left px-4 py-2.5 font-semibold text-gray-600 text-xs uppercase tracking-wide hidden sm:table-cell">Drug</th>
+                      <th className="text-left px-4 py-2.5 font-semibold text-gray-600 text-xs uppercase tracking-wide hidden md:table-cell">Last Contacted</th>
+                      <th className="text-center px-4 py-2.5 font-semibold text-gray-600 text-xs uppercase tracking-wide hidden sm:table-cell">Attempts</th>
+                      <th className="text-right px-5 py-2.5 font-semibold text-gray-600 text-xs uppercase tracking-wide">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {nonResponsive.map(p => (
+                      <tr key={p.id} className={`border-b border-gray-50 last:border-0 ${p.reactivated ? "opacity-50" : ""}`}>
+                        <td className="px-5 py-3 font-medium text-gray-900">{p.patientName}</td>
+                        <td className="px-4 py-3 text-gray-600 hidden sm:table-cell">
+                          <span>{p.drug}</span>
+                          <span className="text-gray-400 text-xs ml-1">{p.strength}</span>
+                        </td>
+                        <td className="px-4 py-3 text-gray-500 hidden md:table-cell">{p.lastContacted}</td>
+                        <td className="px-4 py-3 text-center hidden sm:table-cell">
+                          <span className="text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">{p.attempts}x</span>
+                        </td>
+                        <td className="px-5 py-3 text-right">
+                          {p.reactivated ? (
+                            <span className="text-xs text-green-600 flex items-center justify-end gap-1">
+                              <Check className="w-3 h-3" />Re-activated
+                            </span>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 px-2.5 text-xs gap-1"
+                              onClick={() => setNonResponsive(prev => prev.map(x => x.id === p.id ? { ...x, reactivated: true } : x))}
+                            >
+                              <RefreshCw className="w-3 h-3" />Re-activate
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </TabsContent>
       </Tabs>
     </div>

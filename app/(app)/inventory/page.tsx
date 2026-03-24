@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Scan, CheckCircle, AlertTriangle, XCircle, Boxes, X } from "lucide-react";
+import { Scan, CheckCircle, AlertTriangle, XCircle, Boxes, X, Clock } from "lucide-react";
+import { isMVP } from "@/lib/deployment";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -485,6 +486,20 @@ function AdjustTab() {
 
 // ── Page ───────────────────────────────────────────────────────────────────────
 export default function InventoryPage() {
+  if (isMVP) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 text-center px-6">
+        <div className="p-4 rounded-2xl bg-gray-100">
+          <Clock className="w-10 h-10 text-gray-400" />
+        </div>
+        <h2 className="text-xl font-bold text-gray-900">Inventory — Coming Soon</h2>
+        <p className="text-sm text-gray-500 max-w-sm">
+          Full inventory management with stock levels, receiving, and reorder alerts is included in the Post-MVP release.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5">
       <div>

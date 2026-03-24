@@ -218,7 +218,8 @@ function MarkUrgentModal({ rxName, onConfirm, onCancel }: {
         <textarea
           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500 resize-none"
           rows={3}
-          placeholder="Describe the clinical urgency (required)..."
+          maxLength={200}
+          placeholder="Enter reason for urgent fill..."
           value={reason}
           onChange={e => setReason(e.target.value)}
         />
@@ -650,6 +651,7 @@ export default function PrescriptionsPage() {
   const [urgentTarget, setUrgentTarget] = useState<Prescription | null>(null);
 
   // US-3.3: left-side checkbox filters
+  const [filterStatuses, setFilterStatuses] = useState<Set<string>>(new Set());
   const [filterChannels, setFilterChannels] = useState<Set<string>>(new Set());
   const [filterSchedules, setFilterSchedules] = useState<Set<string>>(new Set());
   const [filterTechs, setFilterTechs] = useState<Set<string>>(new Set());
@@ -664,13 +666,14 @@ export default function PrescriptionsPage() {
   };
 
   const clearFilters = () => {
+    setFilterStatuses(new Set());
     setFilterChannels(new Set());
     setFilterSchedules(new Set());
     setFilterTechs(new Set());
     setFilterUrgent(false);
   };
 
-  const hasActiveFilters = filterChannels.size > 0 || filterSchedules.size > 0 || filterTechs.size > 0 || filterUrgent;
+  const hasActiveFilters = filterStatuses.size > 0 || filterChannels.size > 0 || filterSchedules.size > 0 || filterTechs.size > 0 || filterUrgent;
 
   const acknowledgeAlert = (rxId: string, alertId: string) => {
     setRxList(prev => prev.map(rx =>
@@ -753,6 +756,9 @@ export default function PrescriptionsPage() {
 
   const applyFilters = (rxs: Prescription[]) => {
     return rxs.filter(rx => {
+      if (filterStatuses.size > 0) {
+        if (!filterStatuses.has(rx.status)) return false;
+      }
       if (filterChannels.size > 0) {
         const rxChannel = rx.channel || "eRx";
         if (![...filterChannels].some(ch => channelDataMap[ch] === rxChannel)) return false;
@@ -892,6 +898,23 @@ export default function PrescriptionsPage() {
           {/* US-3.3: Left-side filter panel */}
           <aside className="w-52 shrink-0 hidden md:block">
             <div className="bg-white border border-gray-200 rounded-xl p-4 sticky top-4 space-y-4 text-sm">
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Status</p>
+                {[
+                  { key: "new", label: "New" },
+                  { key: "filling", label: "Filling" },
+                  { key: "dur_hold", label: "DUR Hold" },
+                  { key: "claims_hold", label: "Claims Hold" },
+                  { key: "ready", label: "Ready" },
+                  { key: "dispensed", label: "Dispensed" },
+                ].map(({ key, label }) => (
+                  <label key={key} className="flex items-center gap-2 text-gray-700 mb-1.5 cursor-pointer">
+                    <input type="checkbox" checked={filterStatuses.has(key)} onChange={() => toggleFilter(setFilterStatuses, key)} className="w-3.5 h-3.5 rounded border-gray-300 accent-[#7C3AED]" />
+                    {label}
+                  </label>
+                ))}
+              </div>
+              <div className="border-t border-gray-100" />
               <div>
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Channel</p>
                 {["E-Prescribe", "Phone-In", "Fax", "Walk-In"].map(ch => (

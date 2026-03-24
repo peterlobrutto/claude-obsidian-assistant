@@ -27,27 +27,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { isPostMVP } from "@/lib/deployment";
 
 const reportCards = [
+  // ── MVP tiles (Epics 8, 9, 11, 12) ───────────────────────────────────────────
   {
-    id: "rx_volume",
-    title: "Prescription Volume",
-    description: "Daily, weekly, and monthly fill counts by drug type",
-    icon: BarChart3,
-    color: "text-[#7C3AED]",
-    bg: "bg-purple-50",
-    badge: "Updated daily",
-    badgeColor: "bg-purple-100 text-purple-700 border-purple-200",
-  },
-  {
-    id: "revenue",
-    title: "Revenue by Payer",
-    description: "Collections breakdown by insurance and cash pay",
-    icon: DollarSign,
-    color: "text-green-600",
-    bg: "bg-green-50",
-    badge: "Real-time",
-    badgeColor: "bg-green-100 text-green-700 border-green-200",
+    id: "controlled",
+    title: "Controlled Substance Log",
+    description: "DEA-required dispensing log for Schedule II–V drugs",
+    icon: AlertTriangle,
+    color: "text-amber-600",
+    bg: "bg-amber-50",
+    badge: "DEA Required",
+    badgeColor: "bg-amber-100 text-amber-700 border-amber-200",
+    postMVPOnly: false,
   },
   {
     id: "rejection_rate",
@@ -58,36 +51,7 @@ const reportCards = [
     bg: "bg-red-50",
     badge: "6 rejections this week",
     badgeColor: "bg-red-100 text-red-700 border-red-200",
-  },
-  {
-    id: "controlled",
-    title: "Controlled Substance Log",
-    description: "DEA-required dispensing log for Schedule II–V drugs",
-    icon: AlertTriangle,
-    color: "text-amber-600",
-    bg: "bg-amber-50",
-    badge: "DEA Required",
-    badgeColor: "bg-amber-100 text-amber-700 border-amber-200",
-  },
-  {
-    id: "reconciliation",
-    title: "End-of-Day Reconciliation",
-    description: "Cash drawer, copay collections, and claim totals",
-    icon: Clock,
-    color: "text-blue-600",
-    bg: "bg-blue-50",
-    badge: "Run daily",
-    badgeColor: "bg-blue-100 text-blue-700 border-blue-200",
-  },
-  {
-    id: "inventory",
-    title: "Inventory Summary",
-    description: "Stock levels, expiration alerts, and reorder points",
-    icon: Package,
-    color: "text-indigo-600",
-    bg: "bg-indigo-50",
-    badge: "3 low stock alerts",
-    badgeColor: "bg-indigo-100 text-indigo-700 border-indigo-200",
+    postMVPOnly: false,
   },
   {
     id: "pdmp",
@@ -98,6 +62,7 @@ const reportCards = [
     bg: "bg-teal-50",
     badge: "US-9.4",
     badgeColor: "bg-teal-100 text-teal-700 border-teal-200",
+    postMVPOnly: false,
   },
   {
     id: "ai_accuracy",
@@ -108,6 +73,52 @@ const reportCards = [
     bg: "bg-violet-50",
     badge: "US-11.4",
     badgeColor: "bg-violet-100 text-violet-700 border-violet-200",
+    postMVPOnly: false,
+  },
+  // ── Post-MVP tiles (Epic 19) ──────────────────────────────────────────────────
+  {
+    id: "rx_volume",
+    title: "Prescription Volume",
+    description: "Daily, weekly, and monthly fill counts by drug type",
+    icon: BarChart3,
+    color: "text-[#7C3AED]",
+    bg: "bg-purple-50",
+    badge: "Updated daily",
+    badgeColor: "bg-purple-100 text-purple-700 border-purple-200",
+    postMVPOnly: true,
+  },
+  {
+    id: "revenue",
+    title: "Revenue by Payer",
+    description: "Collections breakdown by insurance and cash pay",
+    icon: DollarSign,
+    color: "text-green-600",
+    bg: "bg-green-50",
+    badge: "Real-time",
+    badgeColor: "bg-green-100 text-green-700 border-green-200",
+    postMVPOnly: true,
+  },
+  {
+    id: "reconciliation",
+    title: "End-of-Day Reconciliation",
+    description: "Cash drawer, copay collections, and claim totals",
+    icon: Clock,
+    color: "text-blue-600",
+    bg: "bg-blue-50",
+    badge: "Run daily",
+    badgeColor: "bg-blue-100 text-blue-700 border-blue-200",
+    postMVPOnly: true,
+  },
+  {
+    id: "inventory",
+    title: "Inventory Summary",
+    description: "Stock levels, expiration alerts, and reorder points",
+    icon: Package,
+    color: "text-indigo-600",
+    bg: "bg-indigo-50",
+    badge: "3 low stock alerts",
+    badgeColor: "bg-indigo-100 text-indigo-700 border-indigo-200",
+    postMVPOnly: true,
   },
 ];
 
@@ -555,7 +566,7 @@ export default function ReportsPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {reportCards.map(report => {
+        {reportCards.filter(r => isPostMVP || !r.postMVPOnly).map(report => {
           const Icon = report.icon;
           return (
             <Card
