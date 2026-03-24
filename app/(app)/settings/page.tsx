@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Save, Plus, Edit, Trash2, CheckCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Save, Plus, Edit, Trash2, CheckCircle, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { mockUsers } from "@/lib/mock-data";
+import { getStandardHoldDays, setStandardHoldDays } from "@/lib/settings-store";
+import { isPostMVP } from "@/lib/deployment";
 
 const payersList = [
   { id: 1, name: "Blue Cross Blue Shield", bin: "004336", pcn: "ADV", phone: "1-800-262-2583", active: true },
@@ -49,8 +51,21 @@ function SaveSuccessToast({ show }: { show: boolean }) {
 
 export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
+  const [refillOutreach, setRefillOutreach] = useState(false);
+  const [willCallReminders, setWillCallReminders] = useState(false);
+  const [standardHoldDays, setStandardHoldDaysState] = useState<number>(10);
+
+  useEffect(() => {
+    setStandardHoldDaysState(getStandardHoldDays());
+  }, []);
 
   const handleSave = async () => {
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  };
+
+  const handleSaveWillCall = () => {
+    setStandardHoldDays(standardHoldDays);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
@@ -70,6 +85,7 @@ export default function SettingsPage() {
             <TabsTrigger value="printer" className="whitespace-nowrap">Label Printer</TabsTrigger>
             <TabsTrigger value="payers" className="whitespace-nowrap">Payers</TabsTrigger>
             <TabsTrigger value="willcall" className="whitespace-nowrap">Will-Call Settings</TabsTrigger>
+            {isPostMVP && <TabsTrigger value="autopilot" className="whitespace-nowrap">Autopilot Configuration</TabsTrigger>}
           </TabsList>
         </div>
 
@@ -377,8 +393,14 @@ export default function SettingsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label>Standard Hold Period (days)</Label>
-                  <Input type="number" defaultValue="14" min="7" max="30" />
-                  <p className="text-xs text-gray-500">Prescriptions are flagged &quot;Expiring Soon&quot; after this many days</p>
+                  <Input
+                    type="number"
+                    value={standardHoldDays}
+                    onChange={e => setStandardHoldDaysState(Number(e.target.value))}
+                    min="7"
+                    max="30"
+                  />
+                  <p className="text-xs text-gray-500">Used by Autopilot for refill reminder scheduling and will-call expiry alerts</p>
                 </div>
                 <div className="space-y-1.5">
                   <Label>Return-to-Stock Period (days)</Label>
@@ -422,7 +444,7 @@ export default function SettingsPage() {
               </div>
 
               <div className="flex justify-end pt-2">
-                <Button className="bg-[#7C3AED] hover:bg-[#6d28d9] text-white gap-2" onClick={handleSave}>
+                <Button className="bg-[#7C3AED] hover:bg-[#6d28d9] text-white gap-2" onClick={handleSaveWillCall}>
                   <Save className="w-4 h-4" />
                   Save Will-Call Settings
                 </Button>
@@ -430,6 +452,100 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* Autopilot Configuration — Post-MVP only (Epic 21) */}
+        {isPostMVP && <TabsContent value="autopilot" className="mt-4">
+          <Card className="border border-gray-200 shadow-sm">
+            <CardHeader className="pb-3 pt-5 px-6">
+              <CardTitle className="text-base font-semibold text-gray-900">Autopilot Configuration</CardTitle>
+            </CardHeader>
+            <CardContent className="px-6 pb-6 space-y-6">
+
+              {/* Automated Actions section */}
+              <div className="space-y-3">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Automated Actions</p>
+                <div className="space-y-3">
+                  {/* Refill Outreach toggle */}
+                  <div className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">Predictive Refill Outreach</p>
+                      <p className="text-xs text-gray-500 mt-0.5">Automatically send SMS refill reminders to eligible patients with TCPA consent</p>
+                    </div>
+                    <button
+                      onClick={() => setRefillOutreach(v => !v)}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
+                        refillOutreach ? 'bg-green-500' : 'bg-gray-200'
+                      }`}
+                      role="switch"
+                      aria-checked={refillOutreach}
+                    >
+                      <span className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition-transform duration-200 ${
+                        refillOutreach ? 'translate-x-5' : 'translate-x-0'
+                      }`} />
+                    </button>
+                  </div>
+
+                  {/* Will-Call Reminders toggle */}
+                  <div className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">Will-Call Reminders</p>
+                      <p className="text-xs text-gray-500 mt-0.5">Automatically notify patients when prescriptions are ready and approaching expiry</p>
+                    </div>
+                    <button
+                      onClick={() => setWillCallReminders(v => !v)}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
+                        willCallReminders ? 'bg-green-500' : 'bg-gray-200'
+                      }`}
+                      role="switch"
+                      aria-checked={willCallReminders}
+                    >
+                      <span className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition-transform duration-200 ${
+                        willCallReminders ? 'translate-x-5' : 'translate-x-0'
+                      }`} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Pharmacist Review Required section */}
+              <div className="space-y-3">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Pharmacist Review Required</p>
+                <p className="text-xs text-gray-500">These actions cannot be fully automated and always require pharmacist approval before completion.</p>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 opacity-70">
+                    <div className="flex items-center gap-3">
+                      <Lock className="w-4 h-4 text-gray-400 shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Fax OCR Review</p>
+                        <p className="text-xs text-gray-400 mt-0.5">AI parses incoming faxes; pharmacist must approve before entering fill queue</p>
+                      </div>
+                    </div>
+                    <Badge className="bg-gray-100 text-gray-500 border-gray-200 text-xs">Always On</Badge>
+                  </div>
+
+                  <div className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 opacity-70">
+                    <div className="flex items-center gap-3">
+                      <Lock className="w-4 h-4 text-gray-400 shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Claim Rejection Resolution</p>
+                        <p className="text-xs text-gray-400 mt-0.5">AI suggests resolution steps; pharmacist must review and trigger resubmission</p>
+                      </div>
+                    </div>
+                    <Badge className="bg-gray-100 text-gray-500 border-gray-200 text-xs">Always On</Badge>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              <p className="text-xs text-gray-400 italic">
+                Automated actions are logged in the Autopilot panel with full audit trail. Default: all automation off.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>}
       </Tabs>
 
       <SaveSuccessToast show={saved} />

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Bell, ChevronRight, Menu, Sparkles } from "lucide-react";
+import { ChevronRight, Menu, Sparkles } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +25,7 @@ const breadcrumbMap: Record<string, { label: string; parent?: string }> = {
   "/claims": { label: "Claims" },
   "/pos": { label: "POS / Checkout" },
   "/reports": { label: "Reports" },
+  "/inventory": { label: "Inventory" },
   "/settings": { label: "Settings" },
 };
 
@@ -105,11 +106,6 @@ export function AppHeader({ onMenuToggle, onAgentToggle }: AppHeaderProps) {
           </Button>
         </div>
 
-        <div className="relative">
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="w-4.5 h-4.5" size={18} />
-          </Button>
-        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center gap-2 h-9 px-2">

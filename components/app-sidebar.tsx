@@ -9,9 +9,13 @@ import {
   Package,
   CreditCard,
   BarChart3,
+  Boxes,
   Settings,
   Pill,
   X,
+  ShieldAlert,
+  MessageSquare,
+  Phone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +25,11 @@ const navItems = [
   { href: "/prescriptions", icon: FileText, label: "Prescriptions" },
   { href: "/will-call", icon: Package, label: "Will-Call" },
   { href: "/claims", icon: CreditCard, label: "Claims" },
+  { href: "/cs-log", icon: ShieldAlert, label: "CS Log" },
+  { href: "/outreach", icon: MessageSquare, label: "Outreach" },
+  { href: "/ivr", icon: Phone, label: "IVR / Phone" },
   { href: "/reports", icon: BarChart3, label: "Reports" },
+  { href: "/inventory", icon: Boxes, label: "Inventory" },
   { href: "/settings", icon: Settings, label: "Settings" },
 ];
 
@@ -36,11 +44,8 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
   return (
     <aside
       className={cn(
-        // Base styles
         "fixed inset-y-0 left-0 z-50 flex flex-col w-64 min-h-screen bg-[#1e1b4b] text-white transition-transform duration-200 ease-in-out",
-        // Mobile: slide in/out
         isOpen ? "translate-x-0" : "-translate-x-full",
-        // Desktop: always visible, static position
         "md:relative md:translate-x-0 md:z-auto"
       )}
     >

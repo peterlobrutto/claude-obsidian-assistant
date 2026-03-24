@@ -13,6 +13,8 @@ import {
   TrendingUp,
   TrendingDown,
   ArrowRight,
+  ShieldCheck,
+  Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -86,6 +88,26 @@ const reportCards = [
     bg: "bg-indigo-50",
     badge: "3 low stock alerts",
     badgeColor: "bg-indigo-100 text-indigo-700 border-indigo-200",
+  },
+  {
+    id: "pdmp",
+    title: "PDMP Compliance Dashboard",
+    description: "Submission success rates, failure reasons, and daily volume trends",
+    icon: ShieldCheck,
+    color: "text-teal-600",
+    bg: "bg-teal-50",
+    badge: "US-9.4",
+    badgeColor: "bg-teal-100 text-teal-700 border-teal-200",
+  },
+  {
+    id: "ai_accuracy",
+    title: "AI Extraction Accuracy",
+    description: "Per-field OCR confidence scores and pharmacist correction rates",
+    icon: Bot,
+    color: "text-violet-600",
+    bg: "bg-violet-50",
+    badge: "US-11.4",
+    badgeColor: "bg-violet-100 text-violet-700 border-violet-200",
   },
 ];
 
@@ -399,6 +421,100 @@ function ReportModal({ report, open, onClose }: { report: typeof reportCards[0] 
               </table>
             </div>
           )}
+          {/* US-9.4: PDMP Compliance Dashboard */}
+          {report.id === "pdmp" && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { label: "Submissions Today", value: "12", color: "text-teal-700", bg: "bg-teal-50 border-teal-100" },
+                  { label: "This Week", value: "58", color: "text-teal-700", bg: "bg-teal-50 border-teal-100" },
+                  { label: "This Month", value: "203", color: "text-teal-700", bg: "bg-teal-50 border-teal-100" },
+                  { label: "Success Rate", value: "97.5%", color: "text-green-700", bg: "bg-green-50 border-green-100" },
+                ].map(s => (
+                  <div key={s.label} className={`border rounded-lg p-3 text-center ${s.bg}`}>
+                    <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
+                    <p className={`text-xs mt-0.5 ${s.color}`}>{s.label}</p>
+                  </div>
+                ))}
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Daily Submission Volume — Past 7 Days</p>
+                <div className="flex items-end gap-2 h-28 bg-gray-50 rounded-lg p-3">
+                  {[{ day: "Mon", v: 8 }, { day: "Tue", v: 11 }, { day: "Wed", v: 9 }, { day: "Thu", v: 7 }, { day: "Fri", v: 13 }, { day: "Sat", v: 6 }, { day: "Sun", v: 4 }].map(({ day, v }) => (
+                    <div key={day} className="flex-1 flex flex-col items-center gap-1">
+                      <div className="w-full bg-teal-500 rounded-t" style={{ height: `${(v / 13) * 72}px` }} />
+                      <span className="text-xs text-gray-500">{day}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Failure Reasons</p>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 border border-gray-200">
+                      <th className="text-left p-3 font-semibold text-gray-700 text-xs uppercase">Reason</th>
+                      <th className="text-right p-3 font-semibold text-gray-700 text-xs uppercase">Count</th>
+                      <th className="text-right p-3 font-semibold text-gray-700 text-xs uppercase">% of Failures</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { reason: "Patient ID mismatch", count: 3, pct: "60%" },
+                      { reason: "Submission timeout", count: 2, pct: "40%" },
+                    ].map(r => (
+                      <tr key={r.reason} className="border-b border-gray-100 last:border-0">
+                        <td className="p-3 text-gray-800">{r.reason}</td>
+                        <td className="p-3 text-right font-semibold text-red-600">{r.count}</td>
+                        <td className="p-3 text-right text-gray-500">{r.pct}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* US-11.4: AI Extraction Accuracy */}
+          {report.id === "ai_accuracy" && (
+            <div className="space-y-4">
+              <div className="border rounded-lg p-4 bg-violet-50 border-violet-100 text-center">
+                <p className="text-4xl font-bold text-violet-700">94.2%</p>
+                <p className="text-sm text-violet-600 mt-1">Average AI Confidence Score — All Fax OCR Jobs</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Per-Field Accuracy</p>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 border border-gray-200">
+                      <th className="text-left p-3 font-semibold text-gray-700 text-xs uppercase">Field</th>
+                      <th className="text-right p-3 font-semibold text-gray-700 text-xs uppercase">Avg Confidence</th>
+                      <th className="text-right p-3 font-semibold text-gray-700 text-xs uppercase">Correction Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { field: "Patient Name", conf: "98.1%", corr: "1.2%" },
+                      { field: "Drug Name", conf: "96.3%", corr: "2.8%" },
+                      { field: "Dosage", conf: "91.4%", corr: "6.1%" },
+                      { field: "Qty", conf: "93.7%", corr: "4.5%" },
+                      { field: "Refills", conf: "89.2%", corr: "8.3%" },
+                      { field: "Prescriber NPI", conf: "99.1%", corr: "0.7%" },
+                    ].map(r => (
+                      <tr key={r.field} className="border-b border-gray-100 last:border-0">
+                        <td className="p-3 font-medium text-gray-900">{r.field}</td>
+                        <td className="p-3 text-right">
+                          <Badge className={`text-xs border ${parseFloat(r.conf) >= 95 ? "bg-green-100 text-green-700 border-green-200" : parseFloat(r.conf) >= 90 ? "bg-amber-100 text-amber-700 border-amber-200" : "bg-red-100 text-red-700 border-red-200"}`}>{r.conf}</Badge>
+                        </td>
+                        <td className="p-3 text-right text-gray-600">{r.corr}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
         </div>
       </DialogContent>
     </Dialog>

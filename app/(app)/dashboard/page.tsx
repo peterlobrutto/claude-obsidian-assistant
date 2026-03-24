@@ -11,14 +11,15 @@ import {
   RotateCcw,
   AlertCircle,
   CheckCircle2,
-  Activity,
   Inbox,
   PauseCircle,
 } from "lucide-react";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { mockActivity } from "@/lib/mock-data";
+import { isPostMVP } from "@/lib/deployment";
 
 const statsCards = [
   {
@@ -29,6 +30,15 @@ const statsCards = [
     color: "text-[#7C3AED]",
     bg: "bg-purple-50",
     href: "/prescriptions",
+  },
+  {
+    title: "Filled Today",
+    value: "31",
+    change: "+8% vs yesterday",
+    icon: CheckCircle2,
+    color: "text-teal-600",
+    bg: "bg-teal-50",
+    href: "/prescriptions?tab=dispensed",
   },
   {
     title: "Pending",
@@ -85,14 +95,10 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold text-gray-900">Good morning, Dr. Chen</h1>
           <p className="text-sm text-gray-500 mt-0.5">Thursday, January 25, 2024 &bull; Riverside Pharmacy</p>
         </div>
-        <div className="hidden sm:flex items-center gap-1 text-sm text-green-600 bg-green-50 border border-green-200 rounded-full px-3 py-1">
-          <Activity className="w-3.5 h-3.5" />
-          <span className="font-medium">All systems operational</span>
-        </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {statsCards.map((card) => {
           const Icon = card.icon;
           return (
@@ -116,70 +122,74 @@ export default function DashboardPage() {
         })}
       </div>
 
-      {/* Quick Actions */}
-      <div>
-        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Quick Actions</h2>
-        <div className="flex flex-wrap gap-3">
-          <Button asChild className="bg-[#7C3AED] hover:bg-[#6d28d9] text-white gap-2">
-            <Link href="/prescriptions/new">
-              <Plus className="w-4 h-4" />
-              New Rx
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="gap-2">
-            <Link href="/patients">
-              <Users className="w-4 h-4" />
-              Patient Search
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="gap-2">
-            <Link href="/prescriptions">
-              <RotateCcw className="w-4 h-4" />
-              Refill Queue
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="gap-2">
-            <Link href="/claims">
-              <AlertCircle className="w-4 h-4" />
-              Review Rejections
-            </Link>
-          </Button>
+      {/* Quick Actions — Post-MVP only (Epic 15) */}
+      {isPostMVP && (
+        <div>
+          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Quick Actions</h2>
+          <div className="flex flex-wrap gap-3">
+            <Button asChild className="bg-[#7C3AED] hover:bg-[#6d28d9] text-white gap-2">
+              <Link href="/prescriptions/new">
+                <Plus className="w-4 h-4" />
+                New Rx
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="gap-2">
+              <Link href="/patients">
+                <Users className="w-4 h-4" />
+                Patient Search
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="gap-2">
+              <Link href="/prescriptions">
+                <RotateCcw className="w-4 h-4" />
+                Refill Queue
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="gap-2">
+              <Link href="/claims">
+                <AlertCircle className="w-4 h-4" />
+                Review Rejections
+              </Link>
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Activity Feed */}
-        <Card className="md:col-span-2 border border-gray-200 shadow-sm">
-          <CardHeader className="pb-3 pt-5 px-5">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base font-semibold text-gray-900">Recent Activity</CardTitle>
-              <Link href="/prescriptions" className="text-sm text-[#7C3AED] hover:underline">
-                View all
-              </Link>
-            </div>
-          </CardHeader>
-          <CardContent className="px-5 pb-5">
-            <div className="space-y-3">
-              {mockActivity.map((item) => {
-                const config = activityIconMap[item.type];
-                const Icon = config.icon;
-                return (
-                  <div key={item.id} className="flex items-start gap-3">
-                    <div className={`p-1.5 rounded-lg ${config.color.split(" ")[1]}`}>
-                      <Icon className={`w-3.5 h-3.5 ${config.color.split(" ")[0]}`} />
+      <div className={`grid grid-cols-1 ${isPostMVP ? "md:grid-cols-3" : ""} gap-6`}>
+        {/* Activity Feed — Post-MVP only (Epic 15) */}
+        {isPostMVP && (
+          <Card className="md:col-span-2 border border-gray-200 shadow-sm">
+            <CardHeader className="pb-3 pt-5 px-5">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-semibold text-gray-900">Recent Activity</CardTitle>
+                <Link href="/prescriptions" className="text-sm text-[#7C3AED] hover:underline">
+                  View all
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent className="px-5 pb-5">
+              <div className="space-y-3">
+                {mockActivity.map((item) => {
+                  const config = activityIconMap[item.type];
+                  const Icon = config.icon;
+                  return (
+                    <div key={item.id} className="flex items-start gap-3">
+                      <div className={`p-1.5 rounded-lg ${config.color.split(" ")[1]}`}>
+                        <Icon className={`w-3.5 h-3.5 ${config.color.split(" ")[0]}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-gray-900">{item.description}</p>
+                        <p className="text-xs text-gray-500">{item.patientName} &bull; <span className="text-gray-400">{item.staff}</span></p>
+                      </div>
+                      <span className="text-xs text-gray-400 shrink-0">{item.timestamp}</span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-900">{item.description}</p>
-                      <p className="text-xs text-gray-500">{item.patientName}</p>
-                    </div>
-                    <span className="text-xs text-gray-400 shrink-0">{item.timestamp}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Rx Pipeline */}
         <Card className="border border-gray-200 shadow-sm">
@@ -210,20 +220,23 @@ export default function DashboardPage() {
               ))}
             </div>
 
-            <div className="mt-5 pt-4 border-t border-gray-100">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Today&apos;s Performance</p>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: "Avg Fill Time", value: "14 min" },
-                  { label: "Claim Rate", value: "94%" },
-                ].map((metric) => (
-                  <div key={metric.label} className="text-center">
-                    <p className="text-lg font-bold text-gray-900">{metric.value}</p>
-                    <p className="text-xs text-gray-500">{metric.label}</p>
-                  </div>
-                ))}
+            {/* Today's Performance KPIs — Post-MVP only (Epic 15) */}
+            {isPostMVP && (
+              <div className="mt-5 pt-4 border-t border-gray-100">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Today&apos;s Performance</p>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { label: "Avg Fill Time", value: "14 min" },
+                    { label: "Claim Rate", value: "94%" },
+                  ].map((metric) => (
+                    <div key={metric.label} className="text-center">
+                      <p className="text-lg font-bold text-gray-900">{metric.value}</p>
+                      <p className="text-xs text-gray-500">{metric.label}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       </div>

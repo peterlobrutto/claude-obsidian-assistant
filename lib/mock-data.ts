@@ -75,6 +75,12 @@ export interface Prescription {
   status: 'new' | 'filling' | 'dur_hold' | 'claims_hold' | 'ready' | 'dispensed' | 'returned';
   durAlerts?: DURAlert[];
   copay?: number;
+  csSchedule?: 'CII' | 'CIII' | 'CIV' | 'CV';
+  channel?: 'eRx' | 'Fax' | 'Manual';
+  insuranceStatus?: 'Covered' | 'Prior Auth' | 'Rejected' | 'Pending';
+  assignedTech?: string;
+  isUrgent?: boolean;
+  urgentReason?: string;
 }
 
 export interface DURAlert {
@@ -103,11 +109,12 @@ export interface Claim {
   payer: string;
   amountBilled: number;
   amountPaid: number;
-  status: 'paid' | 'rejected' | 'pending' | 'submitted';
+  status: 'paid' | 'rejected' | 'pending' | 'submitted' | 'reversed';
   rejectionCode?: string;
   rejectionReason?: string;
   submittedDate: string;
   rxNumber: string;
+  hasSecondary?: boolean;
 }
 
 export interface User {
@@ -125,6 +132,7 @@ export interface ActivityItem {
   description: string;
   timestamp: string;
   patientName: string;
+  staff: string;
 }
 
 // Mock Patients
@@ -862,6 +870,30 @@ export const mockPrescriptions: Prescription[] = [
     status: 'ready',
     copay: 5.00,
   },
+  {
+    id: 'rx016',
+    rxNumber: 'RX-2024-001862',
+    patientId: 'p002',
+    patientName: 'James Rivera',
+    drug: 'Hydrocodone/APAP',
+    ndc: '00406-8764-05',
+    strength: '5/325 mg',
+    qty: 30,
+    daysSupply: 5,
+    refillsAllowed: 0,
+    refillsRemaining: 0,
+    sig: 'Take 1 tablet every 4-6 hours as needed for pain',
+    dawCode: '0',
+    prescriberId: 'dr004',
+    prescriberName: 'Dr. Robert Harris',
+    writtenDate: '2024-01-24',
+    status: 'new',
+    csSchedule: 'CII',
+    channel: 'Fax',
+    insuranceStatus: 'Pending',
+    assignedTech: 'M. Johnson',
+    copay: 8.00,
+  },
 ];
 
 // Mock Will-Call Items
@@ -980,6 +1012,7 @@ export const mockClaims: Claim[] = [
     status: 'paid',
     submittedDate: '2024-01-24',
     rxNumber: 'RX-2024-001847',
+    hasSecondary: true,
   },
   {
     id: 'cl002',
@@ -1118,6 +1151,7 @@ export const mockClaims: Claim[] = [
     status: 'paid',
     submittedDate: '2024-01-22',
     rxNumber: 'RX-2024-001841',
+    hasSecondary: true,
   },
   {
     id: 'cl014',
@@ -1208,6 +1242,7 @@ export const mockActivity: ActivityItem[] = [
     description: 'New prescription received for Metformin 500 mg',
     timestamp: '2 min ago',
     patientName: 'Margaret Thompson',
+    staff: 'A. Chen',
   },
   {
     id: 'act002',
@@ -1215,6 +1250,15 @@ export const mockActivity: ActivityItem[] = [
     description: 'Prescription filled — Albuterol Inhaler',
     timestamp: '8 min ago',
     patientName: 'James Rivera',
+    staff: 'S. Torres',
+  },
+  {
+    id: 'act009',
+    type: 'rx_filled',
+    description: 'Refill approved — Lisinopril 10mg',
+    timestamp: '14 min ago',
+    patientName: 'Marcus Webb',
+    staff: 'R. Patel',
   },
   {
     id: 'act003',
@@ -1222,6 +1266,15 @@ export const mockActivity: ActivityItem[] = [
     description: 'Claim submitted to Blue Cross Blue Shield',
     timestamp: '15 min ago',
     patientName: 'Dorothy Chen',
+    staff: 'A. Nguyen',
+  },
+  {
+    id: 'act010',
+    type: 'claim_submitted',
+    description: 'Claim resubmitted — Atorvastatin 40mg',
+    timestamp: '21 min ago',
+    patientName: 'Diane Foster',
+    staff: 'J. Kim',
   },
   {
     id: 'act004',
@@ -1229,6 +1282,7 @@ export const mockActivity: ActivityItem[] = [
     description: 'Prescription picked up — Lisinopril 10 mg',
     timestamp: '22 min ago',
     patientName: 'Robert Washington',
+    staff: 'C. Brooks',
   },
   {
     id: 'act005',
@@ -1236,6 +1290,7 @@ export const mockActivity: ActivityItem[] = [
     description: 'New patient profile created',
     timestamp: '41 min ago',
     patientName: 'Thomas Jackson',
+    staff: 'J. Kim',
   },
   {
     id: 'act006',
@@ -1243,6 +1298,7 @@ export const mockActivity: ActivityItem[] = [
     description: 'New prescription received for Sertraline 50 mg',
     timestamp: '55 min ago',
     patientName: 'Patricia O\'Brien',
+    staff: 'R. Patel',
   },
   {
     id: 'act007',
@@ -1250,6 +1306,7 @@ export const mockActivity: ActivityItem[] = [
     description: 'Claim rejected — Prior auth required',
     timestamp: '1 hr ago',
     patientName: 'James Rivera',
+    staff: 'A. Chen',
   },
   {
     id: 'act008',
@@ -1257,5 +1314,6 @@ export const mockActivity: ActivityItem[] = [
     description: 'Prescription filled — Atorvastatin 40 mg',
     timestamp: '1.5 hr ago',
     patientName: 'William Foster',
+    staff: 'S. Torres',
   },
 ];
