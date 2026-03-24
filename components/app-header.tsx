@@ -103,18 +103,12 @@ export function AppHeader({ onMenuToggle, onAgentToggle }: AppHeaderProps) {
             <Sparkles className="w-4 h-4" size={16} />
             <span className="text-sm font-medium">Agent</span>
           </Button>
-          <Badge className="absolute -top-1 -right-1 w-4 h-4 p-0 flex items-center justify-center text-[10px] bg-red-500 hover:bg-red-500">
-            3
-          </Badge>
         </div>
 
         <div className="relative">
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="w-4.5 h-4.5" size={18} />
           </Button>
-          <Badge className="absolute -top-1 -right-1 w-4.5 h-4.5 p-0 flex items-center justify-center text-[10px] bg-red-500 hover:bg-red-500">
-            3
-          </Badge>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
