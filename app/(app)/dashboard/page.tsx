@@ -9,10 +9,11 @@ import {
   Plus,
   Users,
   RotateCcw,
-  TrendingUp,
   AlertCircle,
   CheckCircle2,
   Activity,
+  Inbox,
+  PauseCircle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,20 +22,31 @@ import { mockActivity } from "@/lib/mock-data";
 
 const statsCards = [
   {
-    title: "Today's Rx Count",
+    title: "Received",
     value: "47",
     change: "+12% vs yesterday",
-    icon: FileText,
+    icon: Inbox,
     color: "text-[#7C3AED]",
     bg: "bg-purple-50",
+    href: "/prescriptions",
   },
   {
-    title: "Pending Verification",
+    title: "Pending",
     value: "12",
-    change: "Requires pharmacist review",
+    change: "Requires pharmacist action",
     icon: Clock,
     color: "text-amber-600",
     bg: "bg-amber-50",
+    href: "/prescriptions",
+  },
+  {
+    title: "On Hold",
+    value: "5",
+    change: "DUR Hold + Claims Hold",
+    icon: PauseCircle,
+    color: "text-red-600",
+    bg: "bg-red-50",
+    href: "/prescriptions?tab=dur_hold",
   },
   {
     title: "Will-Call Ready",
@@ -43,6 +55,7 @@ const statsCards = [
     icon: Package,
     color: "text-green-600",
     bg: "bg-green-50",
+    href: "/will-call",
   },
   {
     title: "Claims Pending",
@@ -51,6 +64,7 @@ const statsCards = [
     icon: CreditCard,
     color: "text-blue-600",
     bg: "bg-blue-50",
+    href: "/claims",
   },
 ];
 
@@ -78,24 +92,26 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {statsCards.map((card) => {
           const Icon = card.icon;
           return (
-            <Card key={card.title} className="border border-gray-200 shadow-sm">
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500 font-medium">{card.title}</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-1">{card.value}</p>
-                    <p className="text-xs text-gray-400 mt-1">{card.change}</p>
+            <Link key={card.title} href={card.href} className="block">
+              <Card className="border border-gray-200 shadow-sm hover:shadow-md hover:border-[#7C3AED]/30 transition-all cursor-pointer">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-sm text-gray-500 font-medium">{card.title}</p>
+                      <p className="text-3xl font-bold text-gray-900 mt-1">{card.value}</p>
+                      <p className="text-xs text-gray-400 mt-1">{card.change}</p>
+                    </div>
+                    <div className={`${card.bg} p-2.5 rounded-xl`}>
+                      <Icon className={`w-5 h-5 ${card.color}`} />
+                    </div>
                   </div>
-                  <div className={`${card.bg} p-2.5 rounded-xl`}>
-                    <Icon className={`w-5 h-5 ${card.color}`} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
           );
         })}
       </div>
@@ -173,10 +189,11 @@ export default function DashboardPage() {
           <CardContent className="px-5 pb-5">
             <div className="space-y-3">
               {[
-                { stage: "Pending Verification", count: 12, color: "bg-amber-500" },
-                { stage: "Fill / Count", count: 8, color: "bg-blue-500" },
-                { stage: "Final Check", count: 5, color: "bg-indigo-500" },
-                { stage: "Ready for Pickup", count: 23, color: "bg-green-500" },
+                { stage: "New", count: 7, color: "bg-gray-400" },
+                { stage: "Filling", count: 8, color: "bg-blue-500" },
+                { stage: "DUR Hold", count: 3, color: "bg-red-500" },
+                { stage: "Claims Hold", count: 2, color: "bg-orange-500" },
+                { stage: "Ready", count: 23, color: "bg-green-500" },
               ].map((stage) => (
                 <div key={stage.stage}>
                   <div className="flex justify-between text-sm mb-1">
@@ -199,8 +216,6 @@ export default function DashboardPage() {
                 {[
                   { label: "Avg Fill Time", value: "14 min" },
                   { label: "Claim Rate", value: "94%" },
-                  { label: "Revenue", value: "$3,840" },
-                  { label: "Copay Collect.", value: "98%" },
                 ].map((metric) => (
                   <div key={metric.label} className="text-center">
                     <p className="text-lg font-bold text-gray-900">{metric.value}</p>

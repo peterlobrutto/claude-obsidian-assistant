@@ -8,7 +8,6 @@ import {
   FileText,
   Package,
   CreditCard,
-  ShoppingCart,
   BarChart3,
   Settings,
   Pill,
@@ -22,7 +21,6 @@ const navItems = [
   { href: "/prescriptions", icon: FileText, label: "Prescriptions" },
   { href: "/will-call", icon: Package, label: "Will-Call" },
   { href: "/claims", icon: CreditCard, label: "Claims" },
-  { href: "/pos", icon: ShoppingCart, label: "POS" },
   { href: "/reports", icon: BarChart3, label: "Reports" },
   { href: "/settings", icon: Settings, label: "Settings" },
 ];
@@ -96,7 +94,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
       {/* Footer */}
       <div className="px-6 py-4 border-t border-white/10">
         <p className="text-xs text-white/40">Riverside Pharmacy</p>
-        <p className="text-xs text-white/25 mt-0.5">v2.4.1 — HIPAA Compliant</p>
+        <p className="text-xs text-white/25 mt-0.5">MVP Preview — HIPAA Compliant</p>
       </div>
     </aside>
   );

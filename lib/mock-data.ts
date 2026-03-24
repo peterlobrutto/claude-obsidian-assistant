@@ -30,6 +30,8 @@ export interface Patient {
   };
   allergies: string[];
   conditions: string[];
+  tcpaConsent: boolean;
+  tcpaConsentDate?: string;
   lastRxDate: string;
 }
 
@@ -70,7 +72,7 @@ export interface Prescription {
   prescriberName: string;
   writtenDate: string;
   filledDate?: string;
-  status: 'pending_verification' | 'fill_count' | 'final_check' | 'ready_pickup' | 'dispensed' | 'returned';
+  status: 'new' | 'filling' | 'dur_hold' | 'claims_hold' | 'ready' | 'dispensed' | 'returned';
   durAlerts?: DURAlert[];
   copay?: number;
 }
@@ -158,6 +160,8 @@ export const mockPatients: Patient[] = [
     },
     allergies: ['PCN', 'Sulfa', 'Aspirin'],
     conditions: ['Hypertension', 'Type 2 Diabetes', 'Hyperlipidemia'],
+    tcpaConsent: true,
+    tcpaConsentDate: '2023-06-12',
     lastRxDate: '2024-01-18',
   },
   {
@@ -183,6 +187,8 @@ export const mockPatients: Patient[] = [
     },
     allergies: ['Codeine', 'Latex'],
     conditions: ['Asthma', 'GERD'],
+    tcpaConsent: true,
+    tcpaConsentDate: '2023-08-04',
     lastRxDate: '2024-01-20',
   },
   {
@@ -208,6 +214,7 @@ export const mockPatients: Patient[] = [
     },
     allergies: ['NSAIDs'],
     conditions: ['Atrial Fibrillation', 'Osteoporosis', 'Hypothyroidism'],
+    tcpaConsent: false,
     lastRxDate: '2024-01-21',
   },
   {
@@ -233,6 +240,8 @@ export const mockPatients: Patient[] = [
     },
     allergies: ['Erythromycin'],
     conditions: ['Hypertension', 'Chronic Kidney Disease'],
+    tcpaConsent: true,
+    tcpaConsentDate: '2023-03-22',
     lastRxDate: '2024-01-17',
   },
   {
@@ -258,6 +267,8 @@ export const mockPatients: Patient[] = [
     },
     allergies: [],
     conditions: ['Depression', 'Anxiety'],
+    tcpaConsent: true,
+    tcpaConsentDate: '2023-11-30',
     lastRxDate: '2024-01-19',
   },
   {
@@ -283,6 +294,8 @@ export const mockPatients: Patient[] = [
     },
     allergies: ['PCN', 'Cephalosporins'],
     conditions: ['COPD', 'Heart Failure', 'Type 2 Diabetes'],
+    tcpaConsent: true,
+    tcpaConsentDate: '2023-01-09',
     lastRxDate: '2024-01-16',
   },
   {
@@ -308,6 +321,8 @@ export const mockPatients: Patient[] = [
     },
     allergies: ['Sulfa'],
     conditions: ['Asthma', 'Hypothyroidism'],
+    tcpaConsent: true,
+    tcpaConsentDate: '2023-05-17',
     lastRxDate: '2024-01-22',
   },
   {
@@ -341,6 +356,7 @@ export const mockPatients: Patient[] = [
     },
     allergies: ['Warfarin', 'Statins'],
     conditions: ['Parkinson\'s Disease', 'Hypertension'],
+    tcpaConsent: false,
     lastRxDate: '2024-01-15',
   },
   {
@@ -366,6 +382,8 @@ export const mockPatients: Patient[] = [
     },
     allergies: [],
     conditions: ['Rheumatoid Arthritis', 'Fibromyalgia'],
+    tcpaConsent: true,
+    tcpaConsentDate: '2023-09-14',
     lastRxDate: '2024-01-23',
   },
   {
@@ -391,6 +409,8 @@ export const mockPatients: Patient[] = [
     },
     allergies: ['Penicillin'],
     conditions: ['ADHD', 'Seasonal Allergies'],
+    tcpaConsent: true,
+    tcpaConsentDate: '2023-12-05',
     lastRxDate: '2024-01-24',
   },
   {
@@ -416,6 +436,8 @@ export const mockPatients: Patient[] = [
     },
     allergies: ['Aspirin', 'Ibuprofen'],
     conditions: ['Type 2 Diabetes', 'Hypertension', 'Depression'],
+    tcpaConsent: true,
+    tcpaConsentDate: '2023-07-28',
     lastRxDate: '2024-01-21',
   },
   {
@@ -441,6 +463,8 @@ export const mockPatients: Patient[] = [
     },
     allergies: [],
     conditions: ['Gout', 'Hypertension'],
+    tcpaConsent: true,
+    tcpaConsentDate: '2023-04-03',
     lastRxDate: '2024-01-18',
   },
 ];
@@ -527,7 +551,7 @@ export const mockPrescriptions: Prescription[] = [
     prescriberId: 'dr003',
     prescriberName: 'Dr. Jennifer Adams',
     writtenDate: '2024-01-20',
-    status: 'pending_verification',
+    status: 'new',
     durAlerts: [
       {
         id: 'dur001',
@@ -556,7 +580,7 @@ export const mockPrescriptions: Prescription[] = [
     prescriberId: 'dr002',
     prescriberName: 'Dr. David Park',
     writtenDate: '2024-01-20',
-    status: 'fill_count',
+    status: 'filling',
     copay: 10.00,
   },
   {
@@ -576,7 +600,7 @@ export const mockPrescriptions: Prescription[] = [
     prescriberId: 'dr001',
     prescriberName: 'Dr. Sarah Mitchell',
     writtenDate: '2024-01-21',
-    status: 'final_check',
+    status: 'ready',
     copay: 3.50,
   },
   {
@@ -596,7 +620,7 @@ export const mockPrescriptions: Prescription[] = [
     prescriberId: 'dr001',
     prescriberName: 'Dr. Sarah Mitchell',
     writtenDate: '2024-01-21',
-    status: 'ready_pickup',
+    status: 'ready',
     copay: 4.00,
   },
   {
@@ -616,7 +640,7 @@ export const mockPrescriptions: Prescription[] = [
     prescriberId: 'dr002',
     prescriberName: 'Dr. David Park',
     writtenDate: '2024-01-22',
-    status: 'pending_verification',
+    status: 'dur_hold',
     durAlerts: [
       {
         id: 'dur002',
@@ -673,7 +697,7 @@ export const mockPrescriptions: Prescription[] = [
     prescriberId: 'dr002',
     prescriberName: 'Dr. David Park',
     writtenDate: '2024-01-22',
-    status: 'fill_count',
+    status: 'filling',
     copay: 6.00,
   },
   {
@@ -693,7 +717,7 @@ export const mockPrescriptions: Prescription[] = [
     prescriberId: 'dr004',
     prescriberName: 'Dr. Robert Harris',
     writtenDate: '2024-01-20',
-    status: 'pending_verification',
+    status: 'new',
     copay: 5.00,
   },
   {
@@ -713,7 +737,7 @@ export const mockPrescriptions: Prescription[] = [
     prescriberId: 'dr001',
     prescriberName: 'Dr. Sarah Mitchell',
     writtenDate: '2024-01-23',
-    status: 'final_check',
+    status: 'ready',
     copay: 4.00,
   },
   {
@@ -733,7 +757,7 @@ export const mockPrescriptions: Prescription[] = [
     prescriberId: 'dr003',
     prescriberName: 'Dr. Jennifer Adams',
     writtenDate: '2024-01-24',
-    status: 'fill_count',
+    status: 'claims_hold',
     copay: 5.00,
   },
   {
@@ -753,7 +777,7 @@ export const mockPrescriptions: Prescription[] = [
     prescriberId: 'dr001',
     prescriberName: 'Dr. Sarah Mitchell',
     writtenDate: '2024-01-21',
-    status: 'ready_pickup',
+    status: 'ready',
     copay: 9.00,
   },
   {
@@ -773,7 +797,7 @@ export const mockPrescriptions: Prescription[] = [
     prescriberId: 'dr001',
     prescriberName: 'Dr. Sarah Mitchell',
     writtenDate: '2024-01-18',
-    status: 'pending_verification',
+    status: 'new',
     copay: 6.50,
   },
   {
@@ -835,7 +859,7 @@ export const mockPrescriptions: Prescription[] = [
     prescriberId: 'dr003',
     prescriberName: 'Dr. Jennifer Adams',
     writtenDate: '2024-01-24',
-    status: 'ready_pickup',
+    status: 'ready',
     copay: 5.00,
   },
 ];

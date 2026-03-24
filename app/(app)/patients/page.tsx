@@ -140,7 +140,10 @@ export default function PatientsPage() {
                   Primary Insurance <SortIcon field="insurance" current={sortField} dir={sortDir} />
                 </TableHead>
                 <TableHead className="hidden md:table-cell font-semibold text-gray-700 text-xs uppercase tracking-wide">
-                  Conditions
+                  Allergies
+                </TableHead>
+                <TableHead className="hidden lg:table-cell font-semibold text-gray-700 text-xs uppercase tracking-wide">
+                  TCPA Consent
                 </TableHead>
                 <TableHead
                   className="hidden lg:table-cell cursor-pointer select-none font-semibold text-gray-700 text-xs uppercase tracking-wide"
@@ -184,18 +187,35 @@ export default function PatientsPage() {
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     <Link href={`/patients/${patient.id}`} className="block">
-                      <div className="flex flex-wrap gap-1">
-                        {patient.conditions.slice(0, 2).map((c) => (
-                          <Badge key={c} variant="secondary" className="text-[11px] px-1.5 py-0 font-normal">
-                            {c}
-                          </Badge>
-                        ))}
-                        {patient.conditions.length > 2 && (
-                          <Badge variant="secondary" className="text-[11px] px-1.5 py-0 font-normal">
-                            +{patient.conditions.length - 2}
-                          </Badge>
-                        )}
-                      </div>
+                      {patient.allergies.length === 0 ? (
+                        <Badge variant="secondary" className="text-[11px] px-1.5 py-0 font-normal text-gray-500">NKDA</Badge>
+                      ) : (
+                        <div className="flex flex-wrap gap-1">
+                          {patient.allergies.slice(0, 2).map((a) => (
+                            <Badge key={a} variant="secondary" className="text-[11px] px-1.5 py-0 font-normal">
+                              {a}
+                            </Badge>
+                          ))}
+                          {patient.allergies.length > 2 && (
+                            <Badge variant="secondary" className="text-[11px] px-1.5 py-0 font-normal">
+                              +{patient.allergies.length - 2}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                    </Link>
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    <Link href={`/patients/${patient.id}`} className="block">
+                      {patient.tcpaConsent ? (
+                        <Badge className="text-[11px] px-1.5 py-0 font-normal bg-green-100 text-green-700 border border-green-200">
+                          ✓ Consented
+                        </Badge>
+                      ) : (
+                        <Badge className="text-[11px] px-1.5 py-0 font-normal bg-red-100 text-red-700 border border-red-200">
+                          ✗ No Consent
+                        </Badge>
+                      )}
                     </Link>
                   </TableCell>
                   <TableCell className="hidden lg:table-cell text-gray-600 text-sm">
