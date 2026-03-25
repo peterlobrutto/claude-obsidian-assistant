@@ -636,6 +636,103 @@ function RefillQueueSection() {
   );
 }
 
+// ── Campaign Stats (US-13.4) ───────────────────────────────────────────────────
+const campaignStats = {
+  campaignName: "March Refill Campaign",
+  messagesSent: 47,
+  confirmed: 31,    // 66%
+  declined: 6,      // 13%
+  noResponse: 10,   // 21%
+};
+
+// ── Non-Responsive Patients (US-13.4) ─────────────────────────────────────────
+interface NonResponsiveItem {
+  id: string;
+  name: string;
+  drug: string;
+  daysRemaining: number;
+  lastContacted: string;
+  dismissed?: boolean;
+  resent?: boolean;
+}
+
+const initialNonResponsiveItems: NonResponsiveItem[] = [
+  { id: "nr001", name: "Robert Chen",    drug: "Metformin 500mg",   daysRemaining: 4, lastContacted: "3 days ago" },
+  { id: "nr002", name: "Susan Park",     drug: "Atorvastatin 20mg", daysRemaining: 6, lastContacted: "5 days ago" },
+  { id: "nr003", name: "Michael Torres", drug: "Lisinopril 10mg",   daysRemaining: 2, lastContacted: "7 days ago" },
+];
+
+function NonResponsivePatientsSection() {
+  const [items, setItems] = useState<NonResponsiveItem[]>(initialNonResponsiveItems);
+  const visible = items.filter(i => !i.dismissed);
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-3">
+        <AlertCircle className="w-4 h-4 text-amber-500" />
+        <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Non-Responsive Patients</h2>
+        {visible.length > 0 && <Badge className="bg-amber-500 text-white text-xs px-1.5 py-0">{visible.length}</Badge>}
+      </div>
+      <Card className="border border-gray-200 shadow-sm">
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-gray-50">
+                <TableHead className="pl-5 font-semibold text-gray-700 text-xs uppercase tracking-wide">Patient</TableHead>
+                <TableHead className="font-semibold text-gray-700 text-xs uppercase tracking-wide">Drug</TableHead>
+                <TableHead className="font-semibold text-gray-700 text-xs uppercase tracking-wide">Days Remaining</TableHead>
+                <TableHead className="hidden sm:table-cell font-semibold text-gray-700 text-xs uppercase tracking-wide">Last Contacted</TableHead>
+                <TableHead className="font-semibold text-gray-700 text-xs uppercase tracking-wide">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {visible.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-sm text-gray-400 py-6">All patients have responded</TableCell>
+                </TableRow>
+              ) : visible.map(item => (
+                <TableRow key={item.id} className="border-gray-100">
+                  <TableCell className="pl-5 font-medium text-gray-900 text-sm">{item.name}</TableCell>
+                  <TableCell className="text-sm text-gray-700">{item.drug}</TableCell>
+                  <TableCell>
+                    <span className={`text-sm font-semibold ${item.daysRemaining <= 3 ? "text-red-600" : "text-amber-600"}`}>
+                      {item.daysRemaining}d
+                    </span>
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell text-sm text-gray-500">{item.lastContacted}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1.5">
+                      {item.resent ? (
+                        <span className="text-xs text-green-600 flex items-center gap-1"><Check className="w-3 h-3" />Sent</span>
+                      ) : (
+                        <Button
+                          size="sm"
+                          className="h-7 px-2.5 text-xs gap-1 bg-[#7C3AED] hover:bg-[#6d28d9] text-white"
+                          onClick={() => setItems(prev => prev.map(i => i.id === item.id ? { ...i, resent: true } : i))}
+                        >
+                          <Send className="w-3 h-3" />Re-send
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2 text-xs text-gray-400 hover:text-gray-600"
+                        onClick={() => setItems(prev => prev.map(i => i.id === item.id ? { ...i, dismissed: true } : i))}
+                      >
+                        Dismiss
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 // ── Main page ──────────────────────────────────────────────────────────────────
 export default function PrescriptionsPage() {
   const [rxList, setRxList] = useState<Prescription[]>(mockPrescriptions);
@@ -1109,6 +1206,24 @@ export default function PrescriptionsPage() {
         </div>
       </div>
 
+      {/* ── Campaign Stats (US-13.4) ── */}
+      <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-5">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">{campaignStats.campaignName}</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { label: "Messages Sent", value: String(campaignStats.messagesSent), color: "text-gray-800", bg: "bg-gray-50 border-gray-200" },
+            { label: "Confirmed", value: `${Math.round(campaignStats.confirmed / campaignStats.messagesSent * 100)}%`, color: "text-green-700", bg: "bg-green-50 border-green-100" },
+            { label: "Declined", value: `${Math.round(campaignStats.declined / campaignStats.messagesSent * 100)}%`, color: "text-red-700", bg: "bg-red-50 border-red-100" },
+            { label: "No Response", value: `${Math.round(campaignStats.noResponse / campaignStats.messagesSent * 100)}%`, color: "text-amber-700", bg: "bg-amber-50 border-amber-100" },
+          ].map(s => (
+            <div key={s.label} className={`border rounded-xl p-4 text-center ${s.bg}`}>
+              <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
+              <p className={`text-xs mt-0.5 ${s.color}`}>{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* ── Predictive Refill Queue ── */}
       <div>
         <div className="flex items-center gap-2 mb-3">
@@ -1117,6 +1232,9 @@ export default function PrescriptionsPage() {
         </div>
         <RefillQueueSection />
       </div>
+
+      {/* ── Non-Responsive Patients (US-13.4) ── */}
+      <NonResponsivePatientsSection />
 
       {/* Detail Sheet */}
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>

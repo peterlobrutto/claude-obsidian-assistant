@@ -5,6 +5,7 @@ import { Sparkles, X } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { getStandardHoldDays } from "@/lib/settings-store";
+import { isPostMVP } from "@/lib/deployment";
 
 interface AgentRailProps {
   isOpen: boolean;
@@ -306,31 +307,33 @@ function AgentRailInner({
           )}
         </div>
 
-        {/* Mode toggle */}
-        <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs">
-          <button
-            onClick={() => setMode('copilot')}
-            className={cn(
-              'flex-1 py-1.5 font-medium transition-colors',
-              mode === 'copilot'
-                ? 'bg-[#7C3AED] text-white'
-                : 'bg-white text-gray-500 hover:bg-gray-50'
-            )}
-          >
-            Copilot
-          </button>
-          <button
-            onClick={() => setMode('autopilot')}
-            className={cn(
-              'flex-1 py-1.5 font-medium transition-colors',
-              mode === 'autopilot'
-                ? 'bg-[#7C3AED] text-white'
-                : 'bg-white text-gray-500 hover:bg-gray-50'
-            )}
-          >
-            Autopilot
-          </button>
-        </div>
+        {/* Mode toggle — Autopilot is Post-MVP only */}
+        {isPostMVP && (
+          <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs">
+            <button
+              onClick={() => setMode('copilot')}
+              className={cn(
+                'flex-1 py-1.5 font-medium transition-colors',
+                mode === 'copilot'
+                  ? 'bg-[#7C3AED] text-white'
+                  : 'bg-white text-gray-500 hover:bg-gray-50'
+              )}
+            >
+              Copilot
+            </button>
+            <button
+              onClick={() => setMode('autopilot')}
+              className={cn(
+                'flex-1 py-1.5 font-medium transition-colors',
+                mode === 'autopilot'
+                  ? 'bg-[#7C3AED] text-white'
+                  : 'bg-white text-gray-500 hover:bg-gray-50'
+              )}
+            >
+              Autopilot
+            </button>
+          </div>
+        )}
 
         {mode === 'copilot' && (
           <p className="text-[11px] text-gray-400 mt-2">
