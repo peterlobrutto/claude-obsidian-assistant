@@ -61,7 +61,7 @@ const statsCards = [
   {
     title: "Will-Call Ready",
     value: "23",
-    change: "3 expiring soon",
+    change: isPostMVP ? "3 expiring soon" : "Ready for pickup",
     icon: Package,
     color: "text-green-600",
     bg: "bg-green-50",
