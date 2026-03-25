@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   Plus, AlertTriangle, ChevronRight, X, Check, AlertCircle, Inbox, FileText,
   RotateCcw, MessageSquare, ShieldAlert, Tag, Send, Printer,
-  ClipboardList, Siren,
+  ClipboardList, Siren, ArrowLeftRight,
 } from "lucide-react";
 import { getStandardHoldDays } from "@/lib/settings-store";
 import { Button } from "@/components/ui/button";
@@ -22,8 +22,8 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { mockPrescriptions } from "@/lib/mock-data";
-import type { Prescription, DURAlert } from "@/lib/mock-data";
+import { mockPrescriptions, mockTransferLog, sessionPrescriptions } from "@/lib/mock-data";
+import type { Prescription, DURAlert, TransferLogEntry } from "@/lib/mock-data";
 
 // ── Severity label (Fix 6: MEDIUM → MODERATE) ────────────────────────────────
 const severityLabel: Record<string, string> = {
@@ -38,16 +38,18 @@ const statusColors: Record<string, string> = {
   claims_hold: "bg-orange-100 text-orange-700 border-orange-200",
   ready: "bg-green-100 text-green-700 border-green-200",
   dispensed: "bg-gray-100 text-gray-500 border-gray-200",
+  transferred_out: "bg-gray-100 text-gray-500 border-gray-300",
 };
 
-// Fix 2: add Dispensed tab
+// Fix 2: add Dispensed tab; Epic 24: add Transferred Out tab
 const tabConfig = [
-  { key: "new",         label: "New",          nextStatus: "filling", nextLabel: "Start Fill" },
-  { key: "filling",     label: "Filling",       nextStatus: "ready",   nextLabel: "Mark Ready" },
-  { key: "dur_hold",    label: "DUR Hold",      nextStatus: "filling", nextLabel: "Clear Hold — Return to Filling" },
-  { key: "claims_hold", label: "Claims Hold",   nextStatus: "filling", nextLabel: "Clear Hold — Return to Filling" },
-  { key: "ready",       label: "Ready",         nextStatus: null,      nextLabel: null },
-  { key: "dispensed",   label: "Dispensed",     nextStatus: null,      nextLabel: null },
+  { key: "new",             label: "New",              nextStatus: "filling", nextLabel: "Start Fill" },
+  { key: "filling",         label: "Filling",           nextStatus: "ready",   nextLabel: "Mark Ready" },
+  { key: "dur_hold",        label: "DUR Hold",          nextStatus: "filling", nextLabel: "Clear Hold — Return to Filling" },
+  { key: "claims_hold",     label: "Claims Hold",       nextStatus: "filling", nextLabel: "Clear Hold — Return to Filling" },
+  { key: "ready",           label: "Ready",             nextStatus: null,      nextLabel: null },
+  { key: "dispensed",       label: "Dispensed",         nextStatus: null,      nextLabel: null },
+  { key: "transferred_out", label: "Transferred Out",   nextStatus: null,      nextLabel: null },
 ];
 
 const severityColors: Record<string, string> = {
@@ -70,7 +72,7 @@ const csBadgeStyle: Record<string, string> = {
 };
 
 // ── Intake queue types ─────────────────────────────────────────────────────────
-type IntakeSource = "eRx" | "Fax" | "Manual";
+type IntakeSource = "eRx" | "Fax" | "Manual" | "Transfer In";
 
 interface IntakeItem {
   id: string;
@@ -93,6 +95,7 @@ const sourceBadgeStyle: Record<IntakeSource, string> = {
   eRx: "bg-blue-100 text-blue-700 border-blue-200",
   Fax: "bg-amber-100 text-amber-700 border-amber-200",
   Manual: "bg-gray-100 text-gray-600 border-gray-200",
+  "Transfer In": "bg-teal-100 text-teal-700 border-teal-200",
 };
 
 // ── DUR override reason codes (Fix 7) ─────────────────────────────────────────
@@ -636,6 +639,213 @@ function RefillQueueSection() {
   );
 }
 
+// ── Transfer Out Modal (Epic 24, US-24.5 – US-24.7) ──────────────────────────
+function TransferOutModal({ rx, transferLog, onConfirm, onCancel }: {
+  rx: Prescription;
+  transferLog: TransferLogEntry[];
+  onConfirm: (data: { receivingPharmacy: string; receivingPharmacyAddress: string; receivingPharmacyPhone: string; receivingPharmacyDea: string; receivingPharmacist: string; refillsTransferred: number }) => void;
+  onCancel: () => void;
+}) {
+  const [receivingPharmacy, setReceivingPharmacy]         = useState("");
+  const [receivingPharmacyAddress, setReceivingPharmacyAddress] = useState("");
+  const [receivingPharmacyPhone, setReceivingPharmacyPhone]     = useState("");
+  const [receivingPharmacyDea, setReceivingPharmacyDea]         = useState("");
+  const [receivingPharmacist, setReceivingPharmacist]           = useState("");
+  const [refillsTransferred, setRefillsTransferred] = useState(rx.refillsRemaining.toString());
+
+  const transferDate = new Date().toLocaleString();
+  const isCII = rx.csSchedule === "CII";
+  const isScheduleCSIIIV = rx.csSchedule && rx.csSchedule !== "CII";
+
+  // One-transfer blocks (US-24.7)
+  // Both checks enforced at API layer server-side
+  const receivedAsTransferIn =
+    rx.channel === "Transfer In" ||
+    !!(rx.transferLog?.some(e => e.type === "transfer_in")) ||
+    !!(transferLog.some(e => e.type === "transfer_in" && e.rxId === rx.id));
+
+  const alreadyTransferredOut =
+    rx.status === "transferred_out" ||
+    !!(rx.transferOut) ||
+    !!(rx.transferLog?.some(e => e.type === "transfer_out")) ||
+    !!(transferLog.some(e => e.type === "transfer_out" && e.rxId === rx.id));
+
+  const refillsTransferredNum = Number(refillsTransferred);
+  const refillsValid = !isNaN(refillsTransferredNum) && refillsTransferredNum >= 0 && refillsTransferredNum <= rx.refillsRemaining;
+
+  const canTransfer =
+    !isCII &&
+    !receivedAsTransferIn &&
+    !alreadyTransferredOut &&
+    !!receivingPharmacy.trim() &&
+    !!receivingPharmacyAddress.trim() &&
+    !!receivingPharmacyPhone.trim() &&
+    !!receivingPharmacist.trim() &&
+    refillsValid &&
+    (!isScheduleCSIIIV || !!receivingPharmacyDea.trim());
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="p-5 border-b border-gray-100">
+          <h3 className="text-base font-bold text-gray-900">
+            Transfer Out — {rx.rxNumber} | {rx.drug} {rx.strength}
+          </h3>
+          <p className="text-sm text-gray-500 mt-0.5">{rx.patientName}</p>
+        </div>
+
+        <div className="p-5 space-y-4">
+          {/* Schedule II hard block (US-24.6) */}
+          {/* API enforces HTTP 422 TRANSFER_SCHEDULE_II_PROHIBITED */}
+          {isCII && (
+            <div className="rounded-xl border-2 border-red-300 bg-red-50 p-4 flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-red-800 text-sm">Schedule II Cannot Be Transferred</p>
+                <p className="text-sm text-red-700 mt-0.5">
+                  Schedule II controlled substances cannot be transferred. Advise the patient to obtain a new prescription from their prescriber.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Already received as Transfer In block (US-24.7) */}
+          {!isCII && receivedAsTransferIn && (
+            <div className="rounded-xl border-2 border-red-300 bg-red-50 p-4 flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-red-800 text-sm">Cannot Transfer Again</p>
+                <p className="text-sm text-red-700 mt-0.5">
+                  This prescription was received as a transfer from {rx.transferIn?.origPharmacy || "another pharmacy"}.
+                  It cannot be transferred again.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Already transferred out block (US-24.7) */}
+          {!isCII && !receivedAsTransferIn && alreadyTransferredOut && (
+            <div className="rounded-xl border-2 border-red-300 bg-red-50 p-4 flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-red-800 text-sm">Already Transferred Out</p>
+                <p className="text-sm text-red-700 mt-0.5">
+                  This prescription was already transferred to {rx.transferOut?.receivingPharmacy || "another pharmacy"}
+                  {rx.transferOut?.transferDate ? ` on ${rx.transferOut.transferDate}` : ""}.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Form fields — shown even with blocks so pharmacist sees why */}
+          <div className="space-y-3">
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1">
+                Receiving Pharmacy Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#7C3AED] focus:border-[#7C3AED]"
+                placeholder="e.g. Walgreens #8812"
+                value={receivingPharmacy}
+                onChange={e => setReceivingPharmacy(e.target.value)}
+                disabled={isCII || receivedAsTransferIn || alreadyTransferredOut}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1">
+                Receiving Pharmacy Address <span className="text-red-500">*</span>
+              </label>
+              <input
+                className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#7C3AED] focus:border-[#7C3AED]"
+                placeholder="Street, City, State, ZIP"
+                value={receivingPharmacyAddress}
+                onChange={e => setReceivingPharmacyAddress(e.target.value)}
+                disabled={isCII || receivedAsTransferIn || alreadyTransferredOut}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1">
+                  Phone <span className="text-red-500">*</span>
+                </label>
+                <input
+                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#7C3AED] focus:border-[#7C3AED]"
+                  placeholder="(555) 000-0000"
+                  value={receivingPharmacyPhone}
+                  onChange={e => setReceivingPharmacyPhone(e.target.value)}
+                  disabled={isCII || receivedAsTransferIn || alreadyTransferredOut}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1">
+                  DEA Number{isScheduleCSIIIV && <span className="text-red-500"> *</span>}
+                </label>
+                <input
+                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#7C3AED] focus:border-[#7C3AED]"
+                  placeholder={isScheduleCSIIIV ? "Required" : "Optional"}
+                  value={receivingPharmacyDea}
+                  onChange={e => setReceivingPharmacyDea(e.target.value)}
+                  disabled={isCII || receivedAsTransferIn || alreadyTransferredOut}
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1">
+                Receiving Pharmacist Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#7C3AED] focus:border-[#7C3AED]"
+                placeholder="First Last, RPh"
+                value={receivingPharmacist}
+                onChange={e => setReceivingPharmacist(e.target.value)}
+                disabled={isCII || receivedAsTransferIn || alreadyTransferredOut}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1">
+                  Transfer Date / Time
+                </label>
+                <input
+                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-gray-50 text-gray-500"
+                  value={transferDate}
+                  readOnly
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1">
+                  Refills Remaining Being Transferred <span className="text-red-500">*</span>
+                </label>
+                <input
+                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#7C3AED] focus:border-[#7C3AED]"
+                  type="number"
+                  min="0"
+                  max={rx.refillsRemaining}
+                  value={refillsTransferred}
+                  onChange={e => setRefillsTransferred(e.target.value)}
+                  disabled={isCII || receivedAsTransferIn || alreadyTransferredOut}
+                />
+                <p className="text-xs text-gray-400 mt-0.5">Max: {rx.refillsRemaining} remaining</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-5 border-t border-gray-100 flex gap-2">
+          <Button variant="outline" className="flex-1" onClick={onCancel}>Cancel</Button>
+          <Button
+            className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+            disabled={!canTransfer}
+            onClick={() => onConfirm({ receivingPharmacy, receivingPharmacyAddress, receivingPharmacyPhone, receivingPharmacyDea, receivingPharmacist, refillsTransferred: refillsTransferredNum })}
+          >
+            Transfer Out
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Campaign Stats (US-13.4) ───────────────────────────────────────────────────
 const campaignStats = {
   campaignName: "March Refill Campaign",
@@ -735,7 +945,7 @@ function NonResponsivePatientsSection() {
 
 // ── Main page ──────────────────────────────────────────────────────────────────
 export default function PrescriptionsPage() {
-  const [rxList, setRxList] = useState<Prescription[]>(mockPrescriptions);
+  const [rxList, setRxList] = useState<Prescription[]>([...mockPrescriptions, ...sessionPrescriptions]);
   const [selectedRx, setSelectedRx] = useState<Prescription | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [intakeItems, setIntakeItems] = useState<IntakeItem[]>(initialIntakeItems);
@@ -746,6 +956,9 @@ export default function PrescriptionsPage() {
   const [pdmpTarget, setPdmpTarget] = useState<Prescription | null>(null);
   const [labelTarget, setLabelTarget] = useState<Prescription | null>(null);
   const [urgentTarget, setUrgentTarget] = useState<Prescription | null>(null);
+  // Epic 24 — Transfer Out state
+  const [transferOutTarget, setTransferOutTarget] = useState<Prescription | null>(null);
+  const [transferLog, setTransferLog] = useState<TransferLogEntry[]>([...mockTransferLog]);
 
   // US-3.3: left-side checkbox filters
   const [filterStatuses, setFilterStatuses] = useState<Set<string>>(new Set());
@@ -846,9 +1059,46 @@ export default function PrescriptionsPage() {
     setRxList(prev => prev.map(r => r.id === rxId ? { ...r, isUrgent: false, urgentReason: undefined } : r));
   };
 
+  // Epic 24 — Transfer Out handler
+  const doTransferOut = (rx: Prescription, data: {
+    receivingPharmacy: string; receivingPharmacyAddress: string;
+    receivingPharmacyPhone: string; receivingPharmacyDea: string;
+    receivingPharmacist: string; refillsTransferred: number;
+  }) => {
+    const now = new Date().toLocaleString();
+    const isoNow = new Date().toISOString();
+    const entry: TransferLogEntry = {
+      type: "transfer_out",
+      rxId: rx.id,
+      receivingPharmacy: data.receivingPharmacy,
+      receivingPharmacist: data.receivingPharmacist,
+      timestamp: isoNow,
+      refillsTransferred: data.refillsTransferred,
+    };
+    setTransferLog(prev => [...prev, entry]);
+    mockTransferLog.push(entry);
+    setRxList(prev => prev.map(r => r.id === rx.id ? {
+      ...r,
+      status: "transferred_out",
+      refillsRemaining: 0,
+      transferOut: {
+        receivingPharmacy: data.receivingPharmacy,
+        receivingPharmacyAddress: data.receivingPharmacyAddress,
+        receivingPharmacyPhone: data.receivingPharmacyPhone,
+        receivingPharmacyDea: data.receivingPharmacyDea || undefined,
+        receivingPharmacist: data.receivingPharmacist,
+        transferDate: now,
+        refillsTransferred: data.refillsTransferred,
+      },
+      transferLog: [...(r.transferLog || []), entry],
+    } : r));
+    setTransferOutTarget(null);
+    setSheetOpen(false);
+  };
+
   // Channel label → data value mapping
   const channelDataMap: Record<string, string> = {
-    "E-Prescribe": "eRx", "Phone-In": "Phone", "Fax": "Fax", "Walk-In": "Walk-In",
+    "E-Prescribe": "eRx", "Phone-In": "Phone", "Fax": "Fax", "Walk-In": "Walk-In", "Transfer In": "Transfer In",
   };
 
   const applyFilters = (rxs: Prescription[]) => {
@@ -902,6 +1152,14 @@ export default function PrescriptionsPage() {
       )}
       {urgentTarget && (
         <MarkUrgentModal rxName={`${urgentTarget.rxNumber} — ${urgentTarget.drug}`} onConfirm={(reason) => markUrgent(urgentTarget, reason)} onCancel={() => setUrgentTarget(null)} />
+      )}
+      {transferOutTarget && (
+        <TransferOutModal
+          rx={transferOutTarget}
+          transferLog={transferLog}
+          onConfirm={(data) => doTransferOut(transferOutTarget, data)}
+          onCancel={() => setTransferOutTarget(null)}
+        />
       )}
 
       <div className="flex items-center justify-between">
@@ -1004,6 +1262,7 @@ export default function PrescriptionsPage() {
                   { key: "claims_hold", label: "Claims Hold" },
                   { key: "ready", label: "Ready" },
                   { key: "dispensed", label: "Dispensed" },
+                  { key: "transferred_out", label: "Transferred Out" },
                 ].map(({ key, label }) => (
                   <label key={key} className="flex items-center gap-2 text-gray-700 mb-1.5 cursor-pointer">
                     <input type="checkbox" checked={filterStatuses.has(key)} onChange={() => toggleFilter(setFilterStatuses, key)} className="w-3.5 h-3.5 rounded border-gray-300 accent-[#7C3AED]" />
@@ -1014,7 +1273,7 @@ export default function PrescriptionsPage() {
               <div className="border-t border-gray-100" />
               <div>
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Channel</p>
-                {["E-Prescribe", "Phone-In", "Fax", "Walk-In"].map(ch => (
+                {["E-Prescribe", "Phone-In", "Fax", "Walk-In", "Transfer In"].map(ch => (
                   <label key={ch} className="flex items-center gap-2 text-gray-700 mb-1.5 cursor-pointer">
                     <input type="checkbox" checked={filterChannels.has(ch)} onChange={() => toggleFilter(setFilterChannels, ch)} className="w-3.5 h-3.5 rounded border-gray-300 accent-[#7C3AED]" />
                     {ch}
@@ -1161,6 +1420,23 @@ export default function PrescriptionsPage() {
                                 </TableCell>
                                 <TableCell onClick={e => e.stopPropagation()}>
                                   <div className="flex items-center gap-1.5">
+                                    {/* Epic 24 — Transfer Out button: show for new/filling/ready non-CII only */}
+                                    {(rx.status === "new" || rx.status === "filling" || rx.status === "ready") &&
+                                      rx.csSchedule !== "CII" && (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-7 px-2 text-xs text-teal-700 border-teal-200 hover:bg-teal-50 gap-1"
+                                        onClick={e => { e.stopPropagation(); setTransferOutTarget(rx); }}
+                                      >
+                                        <ArrowLeftRight className="w-3 h-3" />
+                                        <span className="hidden sm:inline">Transfer Out</span>
+                                      </Button>
+                                    )}
+                                    {/* Transferred Out badge (terminal — no refill affordance) */}
+                                    {rx.status === "transferred_out" && (
+                                      <span className="text-xs text-gray-400 italic">Transferred</span>
+                                    )}
                                     {rx.isUrgent ? (
                                       <Button
                                         size="sm"
@@ -1171,7 +1447,7 @@ export default function PrescriptionsPage() {
                                         <Siren className="w-3 h-3" />
                                         <span className="hidden sm:inline">Remove Urgent</span>
                                       </Button>
-                                    ) : (
+                                    ) : rx.status !== "transferred_out" ? (
                                       <Button
                                         size="sm"
                                         variant="outline"
@@ -1181,7 +1457,7 @@ export default function PrescriptionsPage() {
                                         <Siren className="w-3 h-3" />
                                         <span className="hidden sm:inline">Mark Urgent</span>
                                       </Button>
-                                    )}
+                                    ) : null}
                                     <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
                                   </div>
                                 </TableCell>
@@ -1356,10 +1632,59 @@ export default function PrescriptionsPage() {
                     </div>
                   )}
 
+                  {/* Epic 24 — Transfer In metadata */}
+                  {currentRx.transferIn && (
+                    <div className="rounded-lg border border-teal-200 bg-teal-50 p-4 space-y-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <ArrowLeftRight className="w-4 h-4 text-teal-600" />
+                        <p className="text-xs font-semibold text-teal-800 uppercase tracking-wide">Transfer In — Audit Record</p>
+                        <Badge className="bg-teal-600 text-white text-xs">Transfer In</Badge>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div><p className="text-teal-600">Originating Pharmacy</p><p className="font-medium text-teal-900">{currentRx.transferIn.origPharmacy}</p></div>
+                        <div><p className="text-teal-600">Original Rx #</p><p className="font-medium text-teal-900 font-mono">{currentRx.transferIn.origRxNumber}</p></div>
+                        <div><p className="text-teal-600">Transferring Pharmacist</p><p className="font-medium text-teal-900">{currentRx.transferIn.origPharmacistName}</p></div>
+                        <div><p className="text-teal-600">Original Rx Date</p><p className="font-medium text-teal-900">{currentRx.transferIn.origRxDate}</p></div>
+                        <div><p className="text-teal-600">Last Dispensed</p><p className="font-medium text-teal-900">{currentRx.transferIn.lastDispensedDate}</p></div>
+                        <div><p className="text-teal-600">Orig. Refills Auth.</p><p className="font-medium text-teal-900">{currentRx.transferIn.origRefillsAuthorized}</p></div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Epic 24 — Transfer Out metadata */}
+                  {currentRx.transferOut && (
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <ArrowLeftRight className="w-4 h-4 text-gray-500" />
+                        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Transferred Out — Audit Record</p>
+                        <Badge className="bg-gray-500 text-white text-xs">Transferred Out</Badge>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div><p className="text-gray-500">Receiving Pharmacy</p><p className="font-medium text-gray-800">{currentRx.transferOut.receivingPharmacy}</p></div>
+                        <div><p className="text-gray-500">Receiving Pharmacist</p><p className="font-medium text-gray-800">{currentRx.transferOut.receivingPharmacist}</p></div>
+                        <div><p className="text-gray-500">Transfer Date</p><p className="font-medium text-gray-800">{currentRx.transferOut.transferDate}</p></div>
+                        <div><p className="text-gray-500">Refills Transferred</p><p className="font-medium text-gray-800">{currentRx.transferOut.refillsTransferred}</p></div>
+                      </div>
+                      <p className="text-xs text-gray-500 italic">This prescription has been transferred out and cannot be refilled or transferred again.</p>
+                    </div>
+                  )}
+
                   {/* Actions */}
                   <div className="pt-2 border-t border-gray-100 space-y-2">
+                    {/* Epic 24 — Transfer Out button in sheet (non-CII, active statuses) */}
+                    {(currentRx.status === "new" || currentRx.status === "filling" || currentRx.status === "ready") &&
+                      currentRx.csSchedule !== "CII" && (
+                      <Button
+                        variant="outline"
+                        className="w-full gap-2 text-teal-700 border-teal-200 hover:bg-teal-50"
+                        onClick={() => { setSheetOpen(false); setTransferOutTarget(currentRx); }}
+                      >
+                        <ArrowLeftRight className="w-4 h-4" />Transfer Out
+                      </Button>
+                    )}
+
                     {/* Fix 5: Mark Urgent */}
-                    {!currentRx.isUrgent && currentRx.status !== "dispensed" && (
+                    {!currentRx.isUrgent && currentRx.status !== "dispensed" && currentRx.status !== "transferred_out" && (
                       <Button
                         variant="outline"
                         className="w-full gap-2 text-red-600 border-red-200 hover:bg-red-50"

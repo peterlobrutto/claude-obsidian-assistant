@@ -72,15 +72,44 @@ export interface Prescription {
   prescriberName: string;
   writtenDate: string;
   filledDate?: string;
-  status: 'new' | 'filling' | 'dur_hold' | 'claims_hold' | 'ready' | 'dispensed' | 'returned';
+  status: 'new' | 'filling' | 'dur_hold' | 'claims_hold' | 'ready' | 'dispensed' | 'returned' | 'transferred_out';
   durAlerts?: DURAlert[];
   copay?: number;
   csSchedule?: 'CII' | 'CIII' | 'CIV' | 'CV';
-  channel?: 'eRx' | 'Fax' | 'Manual';
+  channel?: 'eRx' | 'Fax' | 'Manual' | 'Transfer In';
   insuranceStatus?: 'Covered' | 'Prior Auth' | 'Rejected' | 'Pending';
   assignedTech?: string;
   isUrgent?: boolean;
   urgentReason?: string;
+  // Epic 24 — Transfer In metadata
+  transferIn?: {
+    origPharmacy: string;
+    origRxNumber: string;
+    origPharmacyPhone: string;
+    origPharmacyAddress: string;
+    origPharmacyNcpdp?: string;
+    origPharmacyDea?: string;
+    origPharmacistName: string;
+    origPrescriberName: string;
+    origPrescriberNpi: string;
+    origRxDate: string;
+    lastDispensedDate: string;
+    origRefillsAuthorized: number;
+    refillsRemaining: number;
+    partialFillsDispensed?: number;
+  };
+  // Epic 24 — Transfer Out metadata
+  transferOut?: {
+    receivingPharmacy: string;
+    receivingPharmacyAddress: string;
+    receivingPharmacyPhone: string;
+    receivingPharmacyDea?: string;
+    receivingPharmacist: string;
+    transferDate: string;
+    refillsTransferred: number;
+  };
+  // Epic 24 — Transfer audit log (per-Rx)
+  transferLog?: TransferLogEntry[];
 }
 
 export interface DURAlert {
@@ -133,6 +162,18 @@ export interface ActivityItem {
   timestamp: string;
   patientName: string;
   staff: string;
+}
+
+// Epic 24 — Transfer log entry
+export interface TransferLogEntry {
+  type: 'transfer_in' | 'transfer_out';
+  rxId: string;
+  origRxNumber?: string;
+  origPharmacy?: string;
+  receivingPharmacy?: string;
+  receivingPharmacist?: string;
+  timestamp: string;
+  refillsTransferred?: number;
 }
 
 // Mock Patients
@@ -894,6 +935,93 @@ export const mockPrescriptions: Prescription[] = [
     assignedTech: 'M. Johnson',
     copay: 8.00,
   },
+  // ── Epic 24 Transfer Demo Records ──────────────────────────────────────────
+  {
+    id: 'rx-transfer-demo-1',
+    rxNumber: 'RX-2026-TX-001',
+    patientId: 'p009',
+    patientName: 'Maria Santos',
+    drug: 'Gabapentin',
+    ndc: '00228-3636-10',
+    strength: '300 mg',
+    qty: 90,
+    daysSupply: 30,
+    refillsAllowed: 3,
+    refillsRemaining: 2,
+    sig: 'Take 1 capsule three times daily',
+    dawCode: '0',
+    prescriberId: 'dr001',
+    prescriberName: 'Dr. Sarah Mitchell',
+    writtenDate: '2026-03-01',
+    status: 'new',
+    csSchedule: 'CV',
+    channel: 'Transfer In',
+    copay: 12.00,
+    transferIn: {
+      origPharmacy: 'CVS Pharmacy #4421',
+      origRxNumber: 'RX-7734219',
+      origPharmacyPhone: '(555) 800-2222',
+      origPharmacyAddress: '4421 Main Street, Springfield, IL 62701',
+      origPharmacyDea: 'BC1234567',
+      origPharmacistName: 'Jane Doe, RPh',
+      origPrescriberName: 'Dr. Sarah Mitchell',
+      origPrescriberNpi: '1234567890',
+      origRxDate: '2026-03-01',
+      lastDispensedDate: '2026-03-10',
+      origRefillsAuthorized: 3,
+      refillsRemaining: 2,
+      partialFillsDispensed: 0,
+    },
+    transferLog: [
+      { type: 'transfer_in', rxId: 'rx-transfer-demo-1', origPharmacy: 'CVS Pharmacy #4421', origRxNumber: 'RX-7734219', timestamp: '2026-03-20T10:15:00Z' },
+    ],
+  },
+  {
+    id: 'rx-transfer-demo-2',
+    rxNumber: 'RX-2026-TX-002',
+    patientId: 'p010',
+    patientName: 'James Okafor',
+    drug: 'Oxycodone HCl',
+    ndc: '00406-8764-02',
+    strength: '10 mg',
+    qty: 30,
+    daysSupply: 30,
+    refillsAllowed: 0,
+    refillsRemaining: 0,
+    sig: 'Take 1 tablet every 6 hours as needed for pain',
+    dawCode: '0',
+    prescriberId: 'dr004',
+    prescriberName: 'Dr. Robert Harris',
+    writtenDate: '2026-03-15',
+    status: 'new',
+    csSchedule: 'CII',
+    channel: 'Manual',
+    copay: 25.00,
+    transferLog: [],
+  },
+  {
+    id: 'rx-transfer-demo-3',
+    rxNumber: 'RX-2026-TX-003',
+    patientId: 'p011',
+    patientName: 'Linda Chen',
+    drug: 'Lorazepam',
+    ndc: '00228-2085-10',
+    strength: '1 mg',
+    qty: 30,
+    daysSupply: 30,
+    refillsAllowed: 5,
+    refillsRemaining: 3,
+    sig: 'Take 1 tablet twice daily as needed for anxiety',
+    dawCode: '0',
+    prescriberId: 'dr002',
+    prescriberName: 'Dr. David Park',
+    writtenDate: '2026-03-18',
+    status: 'ready',
+    csSchedule: 'CIV',
+    channel: 'eRx',
+    copay: 8.00,
+    transferLog: [],
+  },
 ];
 
 // Mock Will-Call Items
@@ -1317,3 +1445,12 @@ export const mockActivity: ActivityItem[] = [
     staff: 'S. Torres',
   },
 ];
+
+// ── Epic 24 — Mutable session state (module-level, persists across navigation) ──
+// Initialized from the demo records' transferLog arrays so duplicate detection works
+export const mockTransferLog: TransferLogEntry[] = [
+  { type: 'transfer_in', rxId: 'rx-transfer-demo-1', origPharmacy: 'CVS Pharmacy #4421', origRxNumber: 'RX-7734219', timestamp: '2026-03-20T10:15:00Z' },
+];
+
+// Prescriptions added during this browser session (Transfer In saves)
+export const sessionPrescriptions: Prescription[] = [];
