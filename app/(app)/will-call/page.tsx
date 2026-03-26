@@ -21,12 +21,7 @@ const statusConfig: Record<string, { label: string; className: string }> = {
   return_to_stock: { label: "Return to Stock", className: "bg-red-100 text-red-700 border-red-200" },
 };
 
-const summaryStats = [
-  { label: "Ready for Pickup", count: 6, color: "text-green-600", bg: "bg-green-50" },
-  { label: "Expiring Soon", count: 2, color: "text-orange-600", bg: "bg-orange-50" },
-  { label: "Return to Stock", count: 2, color: "text-red-600", bg: "bg-red-50" },
-  { label: "Total in Will-Call", count: 10, color: "text-gray-700", bg: "bg-gray-50" },
-];
+// summaryStats is derived dynamically inside the component (US-16.4)
 
 // ── Payment Modal (Fix 10/11) ─────────────────────────────────────────────────
 type PaymentMethod = "terminal" | "cash" | null;
@@ -196,6 +191,19 @@ export default function WillCallPage() {
   const [confirmedIds, setConfirmedIds] = useState<Set<string>>(new Set());
   const [paymentTarget, setPaymentTarget] = useState<WillCallItem | null>(null);
 
+  // US-16.4: derive counts dynamically from live items array
+  const readyCount = items.filter(i => i.status === "ready").length;
+  const expiringSoonCount = items.filter(i => i.status === "expiring_soon").length;
+  const rtsCount = items.filter(i => i.status === "return_to_stock").length;
+  const summaryStats = [
+    { label: "Ready for Pickup", count: readyCount, color: "text-green-600", bg: "bg-green-50" },
+    ...(isPostMVP ? [
+      { label: "Expiring Soon", count: expiringSoonCount, color: "text-orange-600", bg: "bg-orange-50" },
+      { label: "Return to Stock", count: rtsCount, color: "text-red-600", bg: "bg-red-50" },
+    ] : []),
+    { label: "Total in Will-Call", count: items.length, color: "text-gray-700", bg: "bg-gray-50" },
+  ];
+
   const filtered = items.filter(item =>
     statusFilter === "all" ? true : item.status === statusFilter
   );
@@ -245,14 +253,14 @@ export default function WillCallPage() {
             <SelectContent>
               <SelectItem value="all">All Statuses</SelectItem>
               <SelectItem value="ready">Ready</SelectItem>
-              <SelectItem value="expiring_soon">Expiring Soon</SelectItem>
-              <SelectItem value="return_to_stock">Return to Stock</SelectItem>
+              {isPostMVP && <SelectItem value="expiring_soon">Expiring Soon</SelectItem>}
+              {isPostMVP && <SelectItem value="return_to_stock">Return to Stock</SelectItem>}
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className={`grid gap-4 ${isPostMVP ? "grid-cols-2 md:grid-cols-4" : "grid-cols-2"}`}>
         {summaryStats.map(stat => (
           <Card key={stat.label} className="border border-gray-200 shadow-sm">
             <CardContent className="p-4">
@@ -354,7 +362,7 @@ export default function WillCallPage() {
                             <span className="sm:hidden">{confirmedIds.has(item.id) ? "✓" : "Pickup"}</span>
                           </Button>
                         )}
-                        {(item.status === "return_to_stock" || item.status === "expiring_soon") && (
+                        {isPostMVP && (item.status === "return_to_stock" || item.status === "expiring_soon") && (
                           <Button
                             size="sm"
                             variant="outline"
