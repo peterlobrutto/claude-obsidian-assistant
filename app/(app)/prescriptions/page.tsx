@@ -19,6 +19,9 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from "@/components/ui/sheet";
 import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+} from "@/components/ui/dialog";
+import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -119,47 +122,55 @@ function DUROverrideModal({ alert, onConfirm, onCancel }: {
   const [code, setCode] = useState("");
   const [notes, setNotes] = useState("");
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
-        <h3 className="text-base font-semibold text-gray-900 mb-1">Override DUR Alert</h3>
-        <p className="text-sm text-gray-500 mb-4">
-          {alert.type.replace("_", " ").toUpperCase()} — {severityLabel[alert.severity]}
-        </p>
-        <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1">
-          Override Reason Code <span className="text-red-500">*</span>
-        </label>
-        <Select value={code} onValueChange={setCode}>
-          <SelectTrigger className="w-full mb-3">
-            <SelectValue placeholder="Select override reason..." />
-          </SelectTrigger>
-          <SelectContent>
-            {durOverrideCodes.map(c => (
-              <SelectItem key={c} value={c}>{c}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1">
-          Clinical Notes
-        </label>
-        <textarea
-          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#7C3AED] focus:border-[#7C3AED] resize-none"
-          rows={3}
-          placeholder="Document clinical rationale..."
-          value={notes}
-          onChange={e => setNotes(e.target.value)}
-        />
-        <div className="flex gap-2 mt-4">
-          <Button
-            className="flex-1 bg-red-600 hover:bg-red-700 text-white"
-            disabled={!code}
-            onClick={() => onConfirm(code, notes)}
-          >
-            Confirm Override
-          </Button>
-          <Button variant="outline" className="flex-1" onClick={onCancel}>Cancel</Button>
+    <Dialog open onOpenChange={(open) => { if (!open) onCancel(); }}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Override DUR Alert</DialogTitle>
+          <DialogDescription>
+            {alert.type.replace("_", " ").toUpperCase()} — {severityLabel[alert.severity]}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1">
+              Override Reason Code <span className="text-red-500">*</span>
+            </label>
+            <Select value={code} onValueChange={setCode}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select override reason..." />
+              </SelectTrigger>
+              <SelectContent>
+                {durOverrideCodes.map(c => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1">
+              Clinical Notes
+            </label>
+            <textarea
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-[#7C3AED] focus:border-[#7C3AED] resize-none"
+              rows={3}
+              placeholder="Document clinical rationale..."
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-2 pt-1">
+            <Button
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+              disabled={!code}
+              onClick={() => onConfirm(code, notes)}
+            >
+              Confirm Override
+            </Button>
+            <Button variant="outline" className="flex-1" onClick={onCancel}>Cancel</Button>
+          </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
